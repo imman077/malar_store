@@ -1,0 +1,148 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/product.dart';
+import '../models/credit_note.dart';
+import '../services/storage_service.dart';
+
+// Store State
+class StoreState {
+  final List<Product> products;
+  final List<CreditNote> creditNotes;
+  final bool isLoading;
+
+  StoreState({
+    required this.products,
+    required this.creditNotes,
+    this.isLoading = false,
+  });
+
+  StoreState copyWith({
+    List<Product>? products,
+    List<CreditNote>? creditNotes,
+    bool? isLoading,
+  }) {
+    return StoreState(
+      products: products ?? this.products,
+      creditNotes: creditNotes ?? this.creditNotes,
+      isLoading: isLoading ?? this.isLoading,
+    );
+  }
+}
+
+// Store Notifier
+class StoreNotifier extends StateNotifier<StoreState> {
+  StoreNotifier()
+      : super(StoreState(
+          products: [],
+          creditNotes: [],
+          isLoading: true,
+        )) {
+    _loadData();
+  }
+
+  // Load data from storage
+  Future<void> _loadData() async {
+    state = state.copyWith(isLoading: true);
+    final products = await StorageService.loadProducts();
+    final credits = await StorageService.loadCreditNotes();
+    state = StoreState(
+      products: products,
+      creditNotes: credits,
+      isLoading: false,
+    );
+  }
+
+  // Product Methods
+  Future<void> addProduct(Product product) async {
+    final updatedProducts = [...state.products, product];
+    state = state.copyWith(products: updatedProducts);
+    await StorageService.saveProducts(updatedProducts);
+  }
+
+  Future<void> updateProduct(Product product) async {
+    final updatedProducts = state.products.map((p) {
+      return p.id == product.id ? product : p;
+    }).toList();
+    state = state.copyWith(products: updatedProducts);
+    await StorageService.saveProducts(updatedProducts);
+  }
+
+  Future<void> deleteProduct(String productId) async {
+    final updatedProducts = state.products.where((p) => p.id != productId).toList();
+    state = state.copyWith(products: updatedProducts);
+    await StorageService.saveProducts(updatedProducts);
+  }
+
+  // Credit Note Methods
+  Future<void> addCredit(CreditNote credit) async {
+    final updatedCredits = [...state.creditNotes, credit];
+    state = state.copyWith(creditNotes: updatedCredits);
+    await StorageService.saveCreditNotes(updatedCredits);
+  }
+
+  Future<void> updateCredit(CreditNote credit) async {
+    final updatedCredits = state.creditNotes.map((c) {
+      return c.id == credit.id ? credit : c;
+    }).toList();
+    state = state.copyWith(creditNotes: updatedCredits);
+    await StorageService.saveCreditNotes(updatedCredits);
+  }
+
+  Future<void> deleteCredit(String creditId) async {
+    final updatedCredits = state.creditNotes.where((c) => c.id != creditId).toList();
+    state = state.copyWith(creditNotes: updatedCredits);
+    await StorageService.saveCreditNotes(updatedCredits);
+  }
+
+  // Mark credit as paid
+  Future<void> markCreditAsPaid(String creditId) async {
+    final credit = state.creditNotes.firstWhere((c) => c.id == creditId);
+    final updatedCredit = credit.copyWith(
+      isPaid: true,
+      amountPaid: credit.totalAmount,
+    );
+    await updateCredit(updatedCredit);
+  }
+
+  // Refresh data
+  Future<void> refresh() async {
+    await _loadData();
+  }
+}
+
+// Store Provider
+final storeProvider = StateNotifierProvider<StoreNotifier, StoreState>((ref) {
+  return StoreNotifier();
+});
+
+// Derived Providers for easy access
+final productsProvider = Provider<List<Product>>((ref) {
+  return ref.watch(storeProvider).products;
+});
+
+final creditNotesProvider = Provider<List<CreditNote>>((ref) {
+  return ref.watch(storeProvider).creditNotes;
+});
+
+// Expired products count
+final expiredProductsCountProvider = Provider<int>((ref) {
+  final products = ref.watch(productsProvider);
+  return products.where((p) => p.isExpired).length;
+});
+
+// Expiring soon products count
+final expiringSoonProductsCountProvider = Provider<int>((ref) {
+  final products = ref.watch(productsProvider);
+  return products.where((p) => p.isExpiringSoon).length;
+});
+
+// Fresh products count
+final freshProductsCountProvider = Provider<int>((ref) {
+  final products = ref.watch(productsProvider);
+  return products.where((p) => p.isFresh).length;
+});
+
+// Pending credits count
+final pendingCreditsCountProvider = Provider<int>((ref) {
+  final credits = ref.watch(creditNotesProvider);
+  return credits.where((c) => !c.isPaid).length;
+});
