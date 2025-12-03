@@ -100,7 +100,7 @@ class ProductCard extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      Helpers.formatCurrency(product.sellingPrice),
+                      Helpers.formatCurrency(product.price),
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

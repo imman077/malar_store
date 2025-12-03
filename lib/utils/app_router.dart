@@ -19,44 +19,62 @@ class AppRouter {
   static const String creditManager = '/credit-manager';
   static const String barcodeScanner = '/barcode-scanner';
 
-  // Generate routes
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
-        return MaterialPageRoute(builder: (_) => const SplashScreen());
-      
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const SplashScreen(),
+        );
+
       case home:
-        return MaterialPageRoute(builder: (_) => const MainLayout());
-      
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const MainLayout(),
+        );
+
       case dashboard:
-        return MaterialPageRoute(builder: (_) => const DashboardScreen());
-      
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const DashboardScreen(),
+        );
+
       case products:
-        return MaterialPageRoute(builder: (_) => const ProductListScreen());
-      
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const ProductListScreen(),
+        );
+
       case addProduct:
         return MaterialPageRoute(
+          settings: settings,
           builder: (_) => const ProductFormScreen(),
         );
-      
+
       case editProduct:
         final args = settings.arguments as Map<String, dynamic>?;
         return MaterialPageRoute(
+          settings: settings,
           builder: (_) => ProductFormScreen(
             product: args?['product'] as Product?,
           ),
         );
-      
+
       case creditManager:
-        return MaterialPageRoute(builder: (_) => const CreditManagerScreen());
-      
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const CreditManagerScreen(),
+        );
+
       case barcodeScanner:
         return MaterialPageRoute(
+          settings: settings,
           builder: (_) => const BarcodeScannerScreen(),
         );
-      
+
       default:
         return MaterialPageRoute(
+          settings: settings,
           builder: (_) => Scaffold(
             body: Center(
               child: Text('No route defined for ${settings.name}'),
@@ -67,38 +85,28 @@ class AppRouter {
   }
 
   // Navigation helpers
-  static void navigateToHome(BuildContext context) {
-    Navigator.pushReplacementNamed(context, home);
-  }
+  static void navigateToHome(BuildContext context) =>
+      Navigator.pushReplacementNamed(context, home);
 
-  static void navigateToDashboard(BuildContext context) {
-    Navigator.pushNamed(context, dashboard);
-  }
+  static void navigateToDashboard(BuildContext context) =>
+      Navigator.pushNamed(context, dashboard);
 
-  static void navigateToProducts(BuildContext context) {
-    Navigator.pushNamed(context, products);
-  }
+  static void navigateToProducts(BuildContext context) =>
+      Navigator.pushNamed(context, products);
 
-  static void navigateToAddProduct(BuildContext context) {
-    Navigator.pushNamed(context, addProduct);
-  }
+  static void navigateToAddProduct(BuildContext context) =>
+      Navigator.pushNamed(context, addProduct);
 
-  static void navigateToEditProduct(BuildContext context, Product product) {
-    Navigator.pushNamed(
-      context,
-      editProduct,
-      arguments: {'product': product},
-    );
-  }
+  static void navigateToEditProduct(BuildContext context, Product product) =>
+      Navigator.pushNamed(
+        context,
+        editProduct,
+        arguments: {'product': product},
+      );
 
-  static void navigateToCreditManager(BuildContext context) {
-    Navigator.pushNamed(context, creditManager);
-  }
+  static void navigateToCreditManager(BuildContext context) =>
+      Navigator.pushNamed(context, creditManager);
 
-  static Future<String?> navigateToBarcodeScanner(BuildContext context) {
-    return Navigator.pushNamed<String>(
-      context,
-      barcodeScanner,
-    );
-  }
+  static Future<String?> navigateToBarcodeScanner(BuildContext context) =>
+      Navigator.pushNamed<String>(context, barcodeScanner);
 }

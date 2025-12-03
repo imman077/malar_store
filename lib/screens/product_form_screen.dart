@@ -10,7 +10,6 @@ import '../utils/constants.dart';
 import '../utils/helpers.dart';
 import '../utils/app_router.dart';
 import '../widgets/image_picker_widget.dart';
-import 'barcode_scanner_screen.dart';
 
 class ProductFormScreen extends ConsumerStatefulWidget {
   final Product? product;
@@ -30,7 +29,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize provider with product data or reset
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(productFormProvider.notifier).setProduct(widget.product);
     });
@@ -39,8 +37,17 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   Future<void> _scanBarcode() async {
     final scannedBarcode = await AppRouter.navigateToBarcodeScanner(context);
 
-    if (scannedBarcode != null) {
-      ref.read(productFormProvider.notifier).updateBarcode(scannedBarcode);
+    if (scannedBarcode != null && scannedBarcode.isNotEmpty) {
+      // TODO: In future, lookup product details from database using barcode
+      // For now, just show a message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Scanned: $scannedBarcode\nProduct lookup will be added in future update'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
@@ -67,7 +74,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final product = notifier.getProduct();
 
     if (product == null) {
-       // Should be handled by validators, but double check
        if (ref.read(productFormProvider).category.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(t('category') + ' required')),
@@ -96,6 +102,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final categories = locale == 'ta' 
         ? ProductCategories.categoriesTamil 
         : ProductCategories.categories;
+
+    final isOtherCategory = state.category == 'Other' || state.category == 'மற்றவை';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -170,98 +178,55 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Barcode
+            // Custom Category Input (shown only when "Other" is selected)
+            if (isOtherCategory) ...[
+              TextFormField(
+                initialValue: state.customCategory,
+                decoration: InputDecoration(
+                  labelText: locale == 'ta' ? 'வகை பெயர்' : 'Category Name',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  filled: true,
+                  fillColor: AppColors.white,
+                ),
+                onChanged: notifier.updateCustomCategory,
+                validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Price
             TextFormField(
-              key: ValueKey('barcode_${state.barcode}'), // Key forces rebuild on external change
-              initialValue: state.barcode,
+              initialValue: state.price,
               decoration: InputDecoration(
-                labelText: t('barcode'),
+                labelText: t('price'),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
                 filled: true,
                 fillColor: AppColors.white,
               ),
-              onChanged: notifier.updateBarcode,
+              keyboardType: TextInputType.number,
+              onChanged: notifier.updatePrice,
+              validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
             ),
             const SizedBox(height: 16),
 
-            // MRP, Cost, Selling Price
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    initialValue: state.mrp,
-                    decoration: InputDecoration(
-                      labelText: t('mrp'),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                      fillColor: AppColors.white,
-                    ),
-                    keyboardType: TextInputType.number,
-                    onChanged: notifier.updateMrp,
-                    validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
-                  ),
+            // Quantity
+            TextFormField(
+              initialValue: state.quantity,
+              decoration: InputDecoration(
+                labelText: t('quantity'),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextFormField(
-                    initialValue: state.costPrice,
-                    decoration: InputDecoration(
-                      labelText: t('costPrice'),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                      fillColor: AppColors.white,
-                    ),
-                    keyboardType: TextInputType.number,
-                    onChanged: notifier.updateCostPrice,
-                    validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    initialValue: state.sellingPrice,
-                    decoration: InputDecoration(
-                      labelText: t('sellingPrice'),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                      fillColor: AppColors.white,
-                    ),
-                    keyboardType: TextInputType.number,
-                    onChanged: notifier.updateSellingPrice,
-                    validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextFormField(
-                    initialValue: state.quantity,
-                    decoration: InputDecoration(
-                      labelText: t('quantity'),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                      fillColor: AppColors.white,
-                    ),
-                    keyboardType: TextInputType.number,
-                    onChanged: notifier.updateQuantity,
-                    validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
-                  ),
-                ),
-              ],
+                filled: true,
+                fillColor: AppColors.white,
+              ),
+              keyboardType: TextInputType.number,
+              onChanged: notifier.updateQuantity,
+              validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
             ),
             const SizedBox(height: 16),
 
@@ -292,22 +257,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // Notes
-            TextFormField(
-              initialValue: state.notes,
-              decoration: InputDecoration(
-                labelText: t('notes'),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                filled: true,
-                fillColor: AppColors.white,
-              ),
-              maxLines: 3,
-              onChanged: notifier.updateNotes,
             ),
             const SizedBox(height: 24),
 

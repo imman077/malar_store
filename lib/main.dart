@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';   // <-- ADD THIS
 import 'services/storage_service.dart';
 import 'utils/constants.dart';
 import 'utils/app_router.dart';
@@ -8,10 +9,12 @@ import 'screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize storage service
+
+  // Enable clean URL without hash (#)
+  setUrlStrategy(PathUrlStrategy());
+
   await StorageService.init();
-  
+
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -34,11 +37,7 @@ class MyApp extends StatelessWidget {
         ),
         scaffoldBackgroundColor: AppColors.background,
         useMaterial3: true,
-        
-        // Set default font families
         textTheme: GoogleFonts.interTextTheme(),
-        
-        // AppBar theme
         appBarTheme: AppBarTheme(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
@@ -50,8 +49,6 @@ class MyApp extends StatelessWidget {
             color: AppColors.white,
           ),
         ),
-        
-        // Input decoration theme
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: AppColors.white,
@@ -69,8 +66,6 @@ class MyApp extends StatelessWidget {
           ),
           labelStyle: const TextStyle(color: AppColors.gray),
         ),
-        
-        // Elevated button theme
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
@@ -86,15 +81,13 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        
-        // Floating action button theme
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
           elevation: 4,
         ),
       ),
-      initialRoute: AppRouter.splash,
+      home: const SplashScreen(),
       onGenerateRoute: AppRouter.generateRoute,
     );
   }

@@ -11,6 +11,7 @@ import 'dashboard_screen.dart';
 import 'product_list_screen.dart';
 import 'product_form_screen.dart';
 import 'credit_manager_screen.dart';
+import 'profile_screen.dart';
 
 class MainLayout extends ConsumerStatefulWidget {
   const MainLayout({super.key});
@@ -27,7 +28,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     const ProductListScreen(),
     const SizedBox(), // Placeholder for FAB
     const CreditManagerScreen(),
-    const Center(child: Text('Profile')), // Placeholder
+    const ProfileScreen(),
   ];
 
   @override
@@ -42,6 +43,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         elevation: 0,
+        automaticallyImplyLeading: false,
         title: Row(
           children: [
             Container(
@@ -61,7 +63,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  t('appName'),
+                  t('name'),
                   style: GoogleFonts.hindMadurai(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

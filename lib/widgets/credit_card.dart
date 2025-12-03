@@ -8,6 +8,8 @@ class CreditCard extends StatelessWidget {
   final CreditNote credit;
   final VoidCallback? onMarkPaid;
   final VoidCallback onDelete;
+  final VoidCallback? onEdit;
+  final VoidCallback? onShowQR;
   final String locale;
 
   const CreditCard({
@@ -15,6 +17,8 @@ class CreditCard extends StatelessWidget {
     required this.credit,
     this.onMarkPaid,
     required this.onDelete,
+    this.onEdit,
+    this.onShowQR,
     required this.locale,
   });
 
@@ -51,27 +55,35 @@ class CreditCard extends StatelessWidget {
                         color: AppColors.black,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          LucideIcons.phone,
-                          size: 14,
-                          color: AppColors.gray,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          credit.phoneNumber,
-                          style: TextStyle(
-                            fontSize: 13,
+                    if (credit.phoneNumber.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            LucideIcons.phone,
+                            size: 14,
                             color: AppColors.gray,
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 4),
+                          Text(
+                            credit.phoneNumber,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.gray,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
+              if (onEdit != null && !credit.isPaid)
+                IconButton(
+                  icon: const Icon(LucideIcons.edit2, size: 20),
+                  onPressed: onEdit,
+                  color: AppColors.primary,
+                ),
               IconButton(
                 icon: const Icon(LucideIcons.trash2, size: 20),
                 onPressed: onDelete,
@@ -140,26 +152,44 @@ class CreditCard extends StatelessWidget {
           ),
           if (!credit.isPaid && onMarkPaid != null) ...[
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: onMarkPaid,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+            Row(
+              children: [
+                if (onShowQR != null)
+                  Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    child: IconButton(
+                      onPressed: onShowQR,
+                      icon: const Icon(LucideIcons.qrCode),
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.primary.withOpacity(0.1),
+                        foregroundColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: onMarkPaid,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      locale == 'ta' ? 'முழுவதும் செலுத்தப்பட்டது' : 'Mark as Fully Paid',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
-                child: Text(
-                  locale == 'ta' ? 'முடிந்தது' : 'Mark as Paid',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+              ],
             ),
           ],
           if (credit.isPaid)

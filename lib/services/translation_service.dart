@@ -1,6 +1,7 @@
 class TranslationService {
   static const Map<String, Map<String, String>> _translations = {
     'en': {
+      'name': 'Malar',
       'appName': 'Malar Stores',
       'subtitle': 'Store Owner',
       'dashboard': 'Home',
@@ -58,6 +59,7 @@ class TranslationService {
       'noCredits': 'No credits found',
     },
     'ta': {
+      'name': 'மலர்',
       'appName': 'மலர் ஸ்டோர்',
       'subtitle': 'கடை உரிமையாளர்',
       'dashboard': 'முகப்பு',

@@ -23,24 +23,14 @@ class StorageKeys {
 // Product Categories
 class ProductCategories {
   static const List<String> categories = [
-    'Groceries',
-    'Beverages',
-    'Snacks',
-    'Personal Care',
-    'Household',
-    'Dairy',
-    'Frozen',
+    'Vegetables',
+    'Masala',
     'Other',
   ];
   
   static const List<String> categoriesTamil = [
-    'மளிகை',
-    'பானங்கள்',
-    'சிற்றுண்டி',
-    'தனிப்பட்ட பராமரிப்பு',
-    'வீட்டு பொருட்கள்',
-    'பால் பொருட்கள்',
-    'உறைந்த',
+    'காய்கறிகள்',
+    'மசாலா',
     'மற்றவை',
   ];
 }
