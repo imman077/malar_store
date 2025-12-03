@@ -10,7 +10,9 @@ import '../utils/helpers.dart';
 import '../utils/app_router.dart';
 import '../widgets/stats_card.dart';
 import '../widgets/product_card.dart';
+import '../widgets/product_card.dart';
 import 'product_form_screen.dart';
+import '../providers/app_provider.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -69,7 +71,11 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                     TextButton(
                       onPressed: () {
-                        // Navigate to items screen
+                        // Navigate to items screen with filter
+                        ref.read(productFilterProvider.notifier).setFilter(
+                          expiredCount > 0 ? 'expired' : 'expiringSoon'
+                        );
+                        ref.read(navigationProvider.notifier).setIndex(1);
                       },
                       style: TextButton.styleFrom(
                         backgroundColor: AppColors.white.withOpacity(0.2),
@@ -163,7 +169,7 @@ class DashboardScreen extends ConsumerWidget {
                     label: t('credits'),
                     color: AppColors.red,
                     onTap: () {
-                      AppRouter.navigateToCreditManager(context);
+                      ref.read(navigationProvider.notifier).setIndex(3);
                     },
                   ),
                 ],
@@ -188,6 +194,8 @@ class DashboardScreen extends ConsumerWidget {
                   TextButton(
                     onPressed: () {
                       // Navigate to all items
+                      ref.read(productFilterProvider.notifier).setFilter('all');
+                      ref.read(navigationProvider.notifier).setIndex(1);
                     },
                     child: Text(
                       t('all'),

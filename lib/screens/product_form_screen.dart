@@ -34,23 +34,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     });
   }
 
-  Future<void> _scanBarcode() async {
-    final scannedBarcode = await AppRouter.navigateToBarcodeScanner(context);
-
-    if (scannedBarcode != null && scannedBarcode.isNotEmpty) {
-      // TODO: In future, lookup product details from database using barcode
-      // For now, just show a message
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Scanned: $scannedBarcode\nProduct lookup will be added in future update'),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    }
-  }
-
   Future<void> _selectDate() async {
     final state = ref.read(productFormProvider);
     final picked = await showDatePicker(
@@ -127,19 +110,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               initialBase64: state.imageBase64,
               onImageSelected: notifier.updateImage,
               uploadText: t('uploadPhoto'),
-            ),
-            const SizedBox(height: 16),
-
-            // Scan Button
-            ElevatedButton.icon(
-              onPressed: _scanBarcode,
-              icon: const Icon(Icons.qr_code_scanner),
-              label: Text(t('scan')),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.orange,
-                foregroundColor: AppColors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
             ),
             const SizedBox(height: 16),
 

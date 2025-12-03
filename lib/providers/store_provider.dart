@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/product.dart';
 import '../models/credit_note.dart';
 import '../services/storage_service.dart';
+import '../services/notification_service.dart';
 
 // Store State
 class StoreState {
@@ -56,6 +57,35 @@ class StoreNotifier extends StateNotifier<StoreState> {
     final updatedProducts = [...state.products, product];
     state = state.copyWith(products: updatedProducts);
     await StorageService.saveProducts(updatedProducts);
+
+    // Trigger immediate notification based on product status
+    if (product.isExpired) {
+      await NotificationService.showNotification(
+        id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title: 'Expired',
+        body: '${product.name} is expired!',
+      );
+    } else if (product.isExpiringSoon) {
+      await NotificationService.showNotification(
+        id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title: 'Expiring Soon',
+        body: '${product.name} is expiring soon!',
+      );
+      
+      // Schedule daily reminder at 9 AM for expiring products
+      await NotificationService.scheduleDailyExpiringProductNotification(
+        id: product.id.hashCode,
+        productName: product.name,
+        hour: 9, // 9 AM
+      );
+    } else {
+      // Fresh item - just notify it was added
+      await NotificationService.showNotification(
+        id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title: 'Item Added',
+        body: '${product.name} is added successfully.',
+      );
+    }
   }
 
   Future<void> updateProduct(Product product) async {
@@ -77,6 +107,22 @@ class StoreNotifier extends StateNotifier<StoreState> {
     final updatedCredits = [...state.creditNotes, credit];
     state = state.copyWith(creditNotes: updatedCredits);
     await StorageService.saveCreditNotes(updatedCredits);
+
+    // Trigger immediate notification
+    await NotificationService.showNotification(
+      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      title: 'Credit Added',
+      body: '${credit.customerName} is pending ₹${credit.pendingAmount.toStringAsFixed(2)}.',
+    );
+
+    // Schedule 12-hour recurring reminder if credit is not paid
+    if (!credit.isPaid && credit.pendingAmount > 0) {
+      await NotificationService.schedule12HourCreditReminder(
+        id: credit.id.hashCode,
+        customerName: credit.customerName,
+        pendingAmount: credit.pendingAmount,
+      );
+    }
   }
 
   Future<void> updateCredit(CreditNote credit) async {
@@ -101,6 +147,9 @@ class StoreNotifier extends StateNotifier<StoreState> {
       amountPaid: credit.totalAmount,
     );
     await updateCredit(updatedCredit);
+    
+    // Cancel the recurring reminder
+    await NotificationService.cancelNotification(credit.id.hashCode);
   }
 
   // Refresh data

@@ -57,6 +57,7 @@ class TranslationService {
       'price': 'Price',
       'noItems': 'No items found',
       'noCredits': 'No credits found',
+      'pay': 'Scan To Pay',
     },
     'ta': {
       'name': 'மலர்',
@@ -115,6 +116,7 @@ class TranslationService {
       'price': 'விலை',
       'noItems': 'பொருட்கள் இல்லை',
       'noCredits': 'கடன் இல்லை',
+      'pay': 'ஸ்கேன் செய்து பணம் செலுத்தவும்',
     },
   };
 

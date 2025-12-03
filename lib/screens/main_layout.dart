@@ -13,6 +13,8 @@ import 'product_form_screen.dart';
 import 'credit_manager_screen.dart';
 import 'profile_screen.dart';
 
+import '../providers/app_provider.dart';
+
 class MainLayout extends ConsumerStatefulWidget {
   const MainLayout({super.key});
 
@@ -21,8 +23,6 @@ class MainLayout extends ConsumerStatefulWidget {
 }
 
 class _MainLayoutState extends ConsumerState<MainLayout> {
-  int _currentIndex = 0;
-
   final List<Widget> _screens = [
     const DashboardScreen(),
     const ProductListScreen(),
@@ -35,6 +35,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
   Widget build(BuildContext context) {
     final locale = ref.watch(languageProvider);
     final expiredCount = ref.watch(expiredProductsCountProvider);
+    final currentIndex = ref.watch(navigationProvider);
     
     String t(String key) => TranslationService.translate(key, locale);
 
@@ -52,10 +53,21 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
-                Icons.store,
-                color: AppColors.primary,
-                size: 24,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Image.asset(
+                  'assets/images/Image1.png',
+                  width: 24,
+                  height: 24,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(
+                      Icons.store,
+                      color: AppColors.primary,
+                      size: 24,
+                    );
+                  },
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -114,9 +126,9 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                 color: AppColors.white,
                 onPressed: () {
                   // Navigate to expired items
-                  setState(() {
-                    _currentIndex = 1;
-                  });
+                  ref.read(navigationProvider.notifier).setIndex(1);
+                  // Optional: Set filter to expired
+                  // ref.read(productFilterProvider.notifier).setFilter('expired');
                 },
               ),
               if (expiredCount > 0)
@@ -137,9 +149,9 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
           const SizedBox(width: 8),
         ],
       ),
-      body: _currentIndex == 2
+      body: currentIndex == 2
           ? const SizedBox()
-          : _screens[_currentIndex],
+          : _screens[currentIndex],
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           AppRouter.navigateToAddProduct(context);
@@ -158,11 +170,11 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(LucideIcons.home, t('dashboard'), 0),
-              _buildNavItem(LucideIcons.package, t('items'), 1),
+              _buildNavItem(LucideIcons.home, t('dashboard'), 0, currentIndex),
+              _buildNavItem(LucideIcons.package, t('items'), 1, currentIndex),
               const SizedBox(width: 40), // Space for FAB
-              _buildNavItem(LucideIcons.users, t('credits'), 3),
-              _buildNavItem(LucideIcons.user, t('profile'), 4),
+              _buildNavItem(LucideIcons.users, t('credits'), 3, currentIndex),
+              _buildNavItem(LucideIcons.user, t('profile'), 4, currentIndex),
             ],
           ),
         ),
@@ -170,14 +182,12 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     );
   }
 
-  Widget _buildNavItem(IconData icon, String label, int index) {
-    final isSelected = _currentIndex == index;
+  Widget _buildNavItem(IconData icon, String label, int index, int currentIndex) {
+    final isSelected = currentIndex == index;
     return Expanded(
       child: InkWell(
         onTap: () {
-          setState(() {
-            _currentIndex = index;
-          });
+          ref.read(navigationProvider.notifier).setIndex(index);
         },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

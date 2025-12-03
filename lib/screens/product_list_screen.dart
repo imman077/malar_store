@@ -8,7 +8,9 @@ import '../services/translation_service.dart';
 import '../utils/constants.dart';
 import '../utils/app_router.dart';
 import '../widgets/product_card.dart';
+import '../widgets/product_card.dart';
 import 'product_form_screen.dart';
+import '../providers/app_provider.dart';
 
 class ProductListScreen extends ConsumerStatefulWidget {
   const ProductListScreen({super.key});
@@ -19,12 +21,12 @@ class ProductListScreen extends ConsumerStatefulWidget {
 
 class _ProductListScreenState extends ConsumerState<ProductListScreen> {
   String _searchQuery = '';
-  String _filterStatus = 'all'; // all, expired, expiringSoon, fresh
 
   @override
   Widget build(BuildContext context) {
     final locale = ref.watch(languageProvider);
     final allProducts = ref.watch(productsProvider);
+    final filterStatus = ref.watch(productFilterProvider);
     
     String t(String key) => TranslationService.translate(key, locale);
 
@@ -40,9 +42,9 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
       }
 
       // Status filter
-      if (_filterStatus == 'expired' && !product.isExpired) return false;
-      if (_filterStatus == 'expiringSoon' && !product.isExpiringSoon) return false;
-      if (_filterStatus == 'fresh' && !product.isFresh) return false;
+      if (filterStatus == 'expired' && !product.isExpired) return false;
+      if (filterStatus == 'expiringSoon' && !product.isExpiringSoon) return false;
+      if (filterStatus == 'fresh' && !product.isFresh) return false;
 
       return true;
     }).toList();
@@ -140,14 +142,13 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
   }
 
   Widget _buildFilterChip(String label, String value) {
-    final isSelected = _filterStatus == value;
+    final currentFilter = ref.watch(productFilterProvider);
+    final isSelected = currentFilter == value;
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
       onSelected: (selected) {
-        setState(() {
-          _filterStatus = value;
-        });
+        ref.read(productFilterProvider.notifier).setFilter(value);
       },
       selectedColor: AppColors.primary,
       backgroundColor: AppColors.lightGray,

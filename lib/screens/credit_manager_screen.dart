@@ -435,39 +435,47 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
   void _showQRDialog(BuildContext context, String Function(String) t) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        contentPadding: const EdgeInsets.all(16),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+      builder: (context) => Dialog.fullscreen(
+        child: Stack(
           children: [
-            Text(
-              t('scanToPay'),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    t('pay'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Image.asset(
+                    'assets/images/qr_code.png',
+                    width: 500,
+                    height: 500,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: 500,
+                        height: 500,
+                        color: AppColors.lightGray,
+                        child: const Center(
+                          child: Icon(LucideIcons.qrCode, size: 100, color: AppColors.gray),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            Image.asset(
-              'assets/images/qr_code.png',
-              width: 200,
-              height: 200,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: 200,
-                  height: 200,
-                  color: AppColors.lightGray,
-                  child: const Center(
-                    child: Icon(LucideIcons.qrCode, size: 50, color: AppColors.gray),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(t('close')),
+            Positioned(
+              top: 16,
+              right: 16,
+              child: IconButton(
+                icon: const Icon(Icons.close, size: 30),
+                onPressed: () => Navigator.pop(context),
+              ),
             ),
           ],
         ),
