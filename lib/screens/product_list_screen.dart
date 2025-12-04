@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../models/app_notification.dart';
 import '../providers/store_provider.dart';
 import '../providers/language_provider.dart';
+import '../providers/notification_provider.dart';
+import '../services/notification_service.dart';
 import '../services/translation_service.dart';
 import '../utils/constants.dart';
 import '../utils/app_router.dart';
+import '../utils/helpers.dart';
 import '../widgets/product_card.dart';
 import '../widgets/product_card.dart';
 import 'product_form_screen.dart';
@@ -176,6 +180,29 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
           ),
           TextButton(
             onPressed: () {
+              final product = ref.read(productsProvider).firstWhere((p) => p.id == productId);
+              
+              // Mobile notification
+              final locale = ref.read(languageProvider);
+              final notificationTitle = TranslationService.translate('productDeleted', locale);
+              final notificationBody = product.name;
+              NotificationService.showNotification(
+                id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+                title: notificationTitle,
+                body: notificationBody,
+              );
+              
+              // Add to notification history
+              ref.read(notificationProvider.notifier).addNotification(
+                AppNotification(
+                  id: Helpers.generateId(),
+                  title: notificationTitle,
+                  body: notificationBody,
+                  timestamp: DateTime.now(),
+                  type: 'product_delete',
+                ),
+              );
+              
               ref.read(storeProvider.notifier).deleteProduct(productId);
               Navigator.pop(context);
             },

@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'constants.dart';
 
 class Helpers {
-  // Date Formatting
   static String formatDate(DateTime date) {
     return DateFormat(DateFormats.display).format(date);
   }
@@ -22,7 +21,16 @@ class Helpers {
     }
   }
 
-  // Expiry Status Calculation
+  // NEW — required for Receipt generation
+  static String formatDateDisplay(String storedDate) {
+    try {
+      final d = parseDate(storedDate)!;
+      return "${d.day}-${d.month}-${d.year}";
+    } catch (_) {
+      return storedDate;
+    }
+  }
+
   static ExpiryStatus getExpiryStatus(String? expiryDateString) {
     if (expiryDateString == null || expiryDateString.isEmpty) {
       return ExpiryStatus.fresh;
@@ -34,16 +42,11 @@ class Helpers {
     final now = DateTime.now();
     final difference = expiryDate.difference(now).inDays;
 
-    if (difference < 0) {
-      return ExpiryStatus.expired;
-    } else if (difference <= 30) {
-      return ExpiryStatus.expiringSoon;
-    } else {
-      return ExpiryStatus.fresh;
-    }
+    if (difference < 0) return ExpiryStatus.expired;
+    if (difference <= 30) return ExpiryStatus.expiringSoon;
+    return ExpiryStatus.fresh;
   }
 
-  // Base64 Image Encoding/Decoding
   static String? encodeImageToBase64(Uint8List? imageBytes) {
     if (imageBytes == null) return null;
     return base64Encode(imageBytes);
@@ -58,12 +61,10 @@ class Helpers {
     }
   }
 
-  // Format Currency
   static String formatCurrency(double amount) {
     return '₹${amount.toStringAsFixed(2)}';
   }
 
-  // Generate Unique ID
   static String generateId() {
     return DateTime.now().millisecondsSinceEpoch.toString();
   }

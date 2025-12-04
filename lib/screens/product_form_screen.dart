@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../models/app_notification.dart';
 import '../providers/language_provider.dart';
 import '../models/product.dart';
 import '../providers/store_provider.dart';
 import '../providers/product_form_provider.dart';
+import '../providers/notification_provider.dart';
+import '../services/notification_service.dart';
 import '../services/translation_service.dart';
 import '../utils/constants.dart';
 import '../utils/helpers.dart';
@@ -67,8 +70,48 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
     if (widget.product == null) {
       ref.read(storeProvider.notifier).addProduct(product);
+      
+      // Mobile notification
+      final notificationTitle = t('productAdded');
+      final notificationBody = product.name;
+      NotificationService.showNotification(
+        id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title: notificationTitle,
+        body: notificationBody,
+      );
+      
+      // Add to notification history
+      ref.read(notificationProvider.notifier).addNotification(
+        AppNotification(
+          id: Helpers.generateId(),
+          title: notificationTitle,
+          body: notificationBody,
+          timestamp: DateTime.now(),
+          type: 'product_add',
+        ),
+      );
     } else {
       ref.read(storeProvider.notifier).updateProduct(product);
+      
+      // Mobile notification
+      final notificationTitle = t('productUpdated');
+      final notificationBody = product.name;
+      NotificationService.showNotification(
+        id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title: notificationTitle,
+        body: notificationBody,
+      );
+      
+      // Add to notification history
+      ref.read(notificationProvider.notifier).addNotification(
+        AppNotification(
+          id: Helpers.generateId(),
+          title: notificationTitle,
+          body: notificationBody,
+          timestamp: DateTime.now(),
+          type: 'product_edit',
+        ),
+      );
     }
 
     Navigator.pop(context);
@@ -102,7 +145,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       ),
       body: Form(
         key: _formKey,
+        // Add unique key based on product to force rebuild when editing
         child: ListView(
+          key: ValueKey(widget.product?.id ?? 'new'),
           padding: const EdgeInsets.all(16),
           children: [
             // Image Picker

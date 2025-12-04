@@ -10,6 +10,7 @@ class CreditCard extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback? onEdit;
   final VoidCallback? onShowQR;
+  final VoidCallback? onGenerateReceipt; // NEW
   final String locale;
 
   const CreditCard({
@@ -19,6 +20,7 @@ class CreditCard extends StatelessWidget {
     required this.onDelete,
     this.onEdit,
     this.onShowQR,
+    this.onGenerateReceipt, // NEW
     required this.locale,
   });
 
@@ -59,18 +61,11 @@ class CreditCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(
-                            LucideIcons.phone,
-                            size: 14,
-                            color: AppColors.gray,
-                          ),
-                          const SizedBox(width: 4),
+                          const Icon(LucideIcons.phone, size: 14, color: AppColors.gray),
+                          SizedBox(width: 4),
                           Text(
                             credit.phoneNumber,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.gray,
-                            ),
+                            style: TextStyle(fontSize: 13, color: AppColors.gray),
                           ),
                         ],
                       ),
@@ -78,66 +73,64 @@ class CreditCard extends StatelessWidget {
                   ],
                 ),
               ),
+
+              if (onGenerateReceipt != null)
+                IconButton(
+                  icon: const Icon(Icons.receipt_long),
+                  onPressed: onGenerateReceipt,
+                  tooltip: locale == 'ta' ? 'ரசீது' : 'Receipt',
+                  color: AppColors.primary,
+                ),
+
               if (onEdit != null && !credit.isPaid)
                 IconButton(
-                  icon: const Icon(LucideIcons.edit2, size: 20),
+                  icon: const Icon(LucideIcons.edit2),
                   onPressed: onEdit,
                   color: AppColors.primary,
                 ),
+
               IconButton(
-                icon: const Icon(LucideIcons.trash2, size: 20),
+                icon: const Icon(LucideIcons.trash2),
                 onPressed: onDelete,
                 color: AppColors.red,
               ),
             ],
           ),
-          const SizedBox(height: 12),
+
+          SizedBox(height: 12),
+
           Text(
             credit.items,
-            style: TextStyle(
-              fontSize: 13,
-              color: AppColors.gray,
-            ),
+            style: TextStyle(fontSize: 13, color: AppColors.gray),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 12),
-          const Divider(height: 1),
-          const SizedBox(height: 12),
+
+          SizedBox(height: 12),
+          Divider(),
+          SizedBox(height: 12),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    locale == 'ta' ? 'மொத்த தொகை' : 'Total Amount',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.gray,
-                    ),
-                  ),
+                  Text(locale == 'ta' ? 'மொத்த தொகை' : 'Total Amount',
+                      style: TextStyle(fontSize: 12, color: AppColors.gray)),
                   Text(
                     Helpers.formatCurrency(credit.totalAmount),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.black,
-                    ),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
+
               if (!credit.isPaid)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      locale == 'ta' ? 'நிலுவை தொகை' : 'Pending',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.gray,
-                      ),
-                    ),
+                    Text(locale == 'ta' ? 'நிலுவை தொகை' : 'Pending',
+                        style: TextStyle(fontSize: 12, color: AppColors.gray)),
                     Text(
                       Helpers.formatCurrency(credit.pendingAmount),
                       style: const TextStyle(
@@ -150,52 +143,40 @@ class CreditCard extends StatelessWidget {
                 ),
             ],
           ),
-          if (!credit.isPaid && onMarkPaid != null) ...[
-            const SizedBox(height: 12),
+
+          if (!credit.isPaid) ...[
+            SizedBox(height: 12),
+
             Row(
               children: [
                 if (onShowQR != null)
-                  Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    child: IconButton(
-                      onPressed: onShowQR,
-                      icon: const Icon(LucideIcons.qrCode),
-                      style: IconButton.styleFrom(
-                        backgroundColor: AppColors.primary.withOpacity(0.1),
-                        foregroundColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
+                  IconButton(
+                    onPressed: onShowQR,
+                    icon: const Icon(LucideIcons.qrCode),
+                    color: AppColors.primary,
                   ),
+
                 Expanded(
                   child: ElevatedButton(
                     onPressed: onMarkPaid,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
                     ),
                     child: Text(
                       locale == 'ta' ? 'முழுவதும் செலுத்தப்பட்டது' : 'Mark as Fully Paid',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
               ],
-            ),
+            )
           ],
+
           if (credit.isPaid)
             Container(
-              margin: const EdgeInsets.only(top: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              margin: EdgeInsets.only(top: 12),
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: AppColors.green.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(6),
@@ -203,19 +184,11 @@ class CreditCard extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    LucideIcons.checkCircle,
-                    size: 16,
-                    color: AppColors.green,
-                  ),
-                  const SizedBox(width: 6),
+                  Icon(LucideIcons.checkCircle, size: 16, color: AppColors.green),
+                  SizedBox(width: 6),
                   Text(
                     locale == 'ta' ? 'செலுத்தப்பட்டது' : 'Paid',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: AppColors.green,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 13, color: AppColors.green),
                   ),
                 ],
               ),

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../providers/language_provider.dart';
 import '../providers/store_provider.dart';
+import '../providers/notification_provider.dart';
 import '../services/translation_service.dart';
 import '../utils/constants.dart';
 import '../utils/app_router.dart';
@@ -12,6 +13,7 @@ import 'product_list_screen.dart';
 import 'product_form_screen.dart';
 import 'credit_manager_screen.dart';
 import 'profile_screen.dart';
+import 'notifications_screen.dart';
 
 import '../providers/app_provider.dart';
 
@@ -53,21 +55,10 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: Image.asset(
-                  'assets/images/Image1.png',
-                  width: 24,
-                  height: 24,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(
-                      Icons.store,
-                      color: AppColors.primary,
-                      size: 24,
-                    );
-                  },
-                ),
+              child: const Icon(
+                Icons.store,
+                color: AppColors.primary,
+                size: 24,
               ),
             ),
             const SizedBox(width: 12),
@@ -125,22 +116,37 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                 icon: const Icon(LucideIcons.bell),
                 color: AppColors.white,
                 onPressed: () {
-                  // Navigate to expired items
-                  ref.read(navigationProvider.notifier).setIndex(1);
-                  // Optional: Set filter to expired
-                  // ref.read(productFilterProvider.notifier).setFilter('expired');
+                  // Navigate to notifications screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationsScreen(),
+                    ),
+                  );
                 },
               ),
-              if (expiredCount > 0)
+              if (ref.watch(notificationProvider).unseenCount > 0)
                 Positioned(
                   right: 8,
                   top: 8,
                   child: Container(
-                    width: 10,
-                    height: 10,
+                    padding: const EdgeInsets.all(4),
                     decoration: const BoxDecoration(
                       color: AppColors.red,
                       shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 18,
+                      minHeight: 18,
+                    ),
+                    child: Text(
+                      '${ref.watch(notificationProvider).unseenCount}',
+                      style: const TextStyle(
+                        color: AppColors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),

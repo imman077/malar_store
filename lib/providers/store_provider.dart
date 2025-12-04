@@ -58,16 +58,27 @@ class StoreNotifier extends StateNotifier<StoreState> {
     state = state.copyWith(products: updatedProducts);
     await StorageService.saveProducts(updatedProducts);
 
-    // Trigger immediate notification based on product status
+    // First notification: Item added
+    await NotificationService.showNotification(
+      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      title: 'Item Added',
+      body: '${product.name} added successfully.',
+    );
+
+    // Second notification: Check expiry status
     if (product.isExpired) {
+      // Small delay to ensure notifications appear separately
+      await Future.delayed(const Duration(milliseconds: 500));
       await NotificationService.showNotification(
-        id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        id: DateTime.now().millisecondsSinceEpoch ~/ 1000 + 1,
         title: 'Expired',
         body: '${product.name} is expired!',
       );
     } else if (product.isExpiringSoon) {
+      // Small delay to ensure notifications appear separately
+      await Future.delayed(const Duration(milliseconds: 500));
       await NotificationService.showNotification(
-        id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        id: DateTime.now().millisecondsSinceEpoch ~/ 1000 + 1,
         title: 'Expiring Soon',
         body: '${product.name} is expiring soon!',
       );
@@ -77,13 +88,6 @@ class StoreNotifier extends StateNotifier<StoreState> {
         id: product.id.hashCode,
         productName: product.name,
         hour: 9, // 9 AM
-      );
-    } else {
-      // Fresh item - just notify it was added
-      await NotificationService.showNotification(
-        id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        title: 'Item Added',
-        body: '${product.name} is added successfully.',
       );
     }
   }

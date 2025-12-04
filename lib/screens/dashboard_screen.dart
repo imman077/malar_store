@@ -153,15 +153,15 @@ class DashboardScreen extends ConsumerWidget {
                     },
                   ),
                   const SizedBox(width: 12),
-                  _buildQuickActionButton(
-                    context,
-                    icon: LucideIcons.scan,
-                    label: t('scan'),
-                    color: AppColors.orange,
-                    onTap: () {
-                      // Scan functionality
-                    },
-                  ),
+                  // _buildQuickActionButton(
+                  //   context,
+                  //   icon: LucideIcons.scan,
+                  //   label: t('scan'),
+                  //   color: AppColors.orange,
+                  //   onTap: () {
+                  //     // Scan functionality
+                  //   },
+                  // ),
                   const SizedBox(width: 12),
                   _buildQuickActionButton(
                     context,
