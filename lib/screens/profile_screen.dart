@@ -44,10 +44,20 @@ class ProfileScreen extends ConsumerWidget {
                       color: AppColors.primary.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      LucideIcons.user,
-                      size: 50,
-                      color: AppColors.primary,
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/images/Profile.png',
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            LucideIcons.user,
+                            size: 50,
+                            color: AppColors.primary,
+                          );
+                        },
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),

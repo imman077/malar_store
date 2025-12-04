@@ -49,19 +49,30 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
         automaticallyImplyLeading: false,
         title: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(8),
+            // Container(
+            //   padding: const EdgeInsets.all(6),
+            //   decoration: BoxDecoration(
+            //     color: AppColors.white,
+            //     borderRadius: BorderRadius.circular(8),
+            //   ),
+            //   child: 
+            // ),
+            ClipRRect(
+                child: Image.asset(
+                  'assets/images/Image2.png',
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(
+                      Icons.store,
+                      color: AppColors.primary,
+                      size: 24,
+                    );
+                  },
+                ),
               ),
-              child: const Icon(
-                Icons.store,
-                color: AppColors.primary,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

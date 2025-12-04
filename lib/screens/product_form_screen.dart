@@ -32,7 +32,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Use Future.microtask to avoid modifying provider during build
+    Future.microtask(() {
       ref.read(productFormProvider.notifier).setProduct(widget.product);
     });
   }
@@ -125,6 +126,22 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     
     String t(String key) => TranslationService.translate(key, locale);
     
+    // Check if we are editing a product but the state hasn't been populated yet
+    if (widget.product != null && state.id != widget.product!.id) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          title: Text(
+            t('editProduct'),
+            style: GoogleFonts.hindMadurai(fontWeight: FontWeight.bold),
+          ),
+          iconTheme: const IconThemeData(color: AppColors.white),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    
     final categories = locale == 'ta' 
         ? ProductCategories.categoriesTamil 
         : ProductCategories.categories;
@@ -145,9 +162,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       ),
       body: Form(
         key: _formKey,
-        // Add unique key based on product to force rebuild when editing
         child: ListView(
-          key: ValueKey(widget.product?.id ?? 'new'),
           padding: const EdgeInsets.all(16),
           children: [
             // Image Picker
@@ -176,7 +191,38 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
             // Category Dropdown
             DropdownButtonFormField<String>(
-              value: state.category.isNotEmpty ? state.category : null,
+              value: () {
+                // Normalize category to match current language
+                if (state.category.isEmpty) return null;
+                
+                // Check if category exists in current language list
+                if (categories.contains(state.category)) {
+                  return state.category;
+                }
+                
+                // Map between English and Tamil categories
+                final categoryMap = {
+                  'Vegetables': 'காய்கறிகள்',
+                  'காய்கறிகள்': 'Vegetables',
+                  'Masala': 'மசாலா',
+                  'மசாலா': 'Masala',
+                  'Other': 'மற்றவை',
+                  'மற்றவை': 'Other',
+                };
+                
+                // Try to find mapped category
+                final mappedCategory = categoryMap[state.category];
+                if (mappedCategory != null && categories.contains(mappedCategory)) {
+                  // Update the state with the correct language category
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    notifier.updateCategory(mappedCategory);
+                  });
+                  return mappedCategory;
+                }
+                
+                // If it's a custom category, return 'Other' in current language
+                return locale == 'ta' ? 'மற்றவை' : 'Other';
+              }(),
               decoration: InputDecoration(
                 labelText: t('category'),
                 border: OutlineInputBorder(

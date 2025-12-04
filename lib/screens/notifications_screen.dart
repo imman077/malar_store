@@ -9,6 +9,7 @@ import '../providers/language_provider.dart';
 import '../services/translation_service.dart';
 import '../utils/constants.dart';
 import '../utils/app_router.dart';
+import '../providers/app_provider.dart';
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
@@ -32,16 +33,46 @@ class NotificationsScreen extends ConsumerWidget {
         ),
         iconTheme: const IconThemeData(color: AppColors.white),
         actions: [
-          if (notificationState.notifications.isNotEmpty)
+          if (notificationState.notifications.isNotEmpty) ...[
             TextButton(
               onPressed: () {
                 ref.read(notificationProvider.notifier).markAllAsSeen();
               },
               child: Text(
                 t('markAllRead'),
-                style: const TextStyle(color: AppColors.white),
+                style: const TextStyle(color: AppColors.white, fontSize: 12),
               ),
             ),
+            IconButton(
+              icon: const Icon(LucideIcons.trash2),
+              onPressed: () {
+                // Show confirmation dialog
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(t('clearAll')),
+                    content: Text('Are you sure you want to clear all notifications?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(t('cancel')),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          ref.read(notificationProvider.notifier).clearAll();
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          t('clearAll'),
+                          style: const TextStyle(color: AppColors.red),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
         ],
       ),
       body: notificationState.notifications.isEmpty
@@ -88,11 +119,12 @@ class NotificationsScreen extends ConsumerWidget {
   void _navigateToRelevantScreen(BuildContext context, WidgetRef ref, String type) {
     // Navigate to relevant screen based on notification type
     if (type.startsWith('product_')) {
-      // Navigate to products tab
+      // Navigate to products tab (index 1)
+      ref.read(navigationProvider.notifier).setIndex(1);
       Navigator.pop(context); // Close notifications screen
-      // The main screen should handle tab switching
     } else if (type.startsWith('credit_')) {
-      // Navigate to credits tab
+      // Navigate to credits tab (index 3)
+      ref.read(navigationProvider.notifier).setIndex(3);
       Navigator.pop(context);
     }
   }
