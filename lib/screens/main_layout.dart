@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import '../models/credit_note.dart';
+import '../models/app_notification.dart';
 import '../providers/language_provider.dart';
 import '../providers/store_provider.dart';
 import '../providers/notification_provider.dart';
 import '../services/translation_service.dart';
+import '../services/notification_service.dart';
 import '../utils/constants.dart';
 import '../utils/app_router.dart';
+import '../utils/helpers.dart';
 import 'dashboard_screen.dart';
 import 'product_list_screen.dart';
 import 'product_form_screen.dart';
@@ -72,7 +76,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                   },
                 ),
               ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -121,47 +125,47 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
             ),
           ),
           // Notification Bell
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(LucideIcons.bell),
-                color: AppColors.white,
-                onPressed: () {
-                  // Navigate to notifications screen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const NotificationsScreen(),
-                    ),
-                  );
-                },
-              ),
-              if (ref.watch(notificationProvider).unseenCount > 0)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: AppColors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 18,
-                      minHeight: 18,
-                    ),
-                    child: Text(
-                      '${ref.watch(notificationProvider).unseenCount}',
-                      style: const TextStyle(
-                        color: AppColors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+          IconButton(
+            onPressed: () {
+              // Navigate to notifications screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationsScreen(),
+                ),
+              );
+            },
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(LucideIcons.bell, color: AppColors.white),
+                if (ref.watch(notificationProvider).unseenCount > 0)
+                  Positioned(
+                    right: -5,
+                    top: -10,
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: const BoxDecoration(
+                        color: AppColors.red,
+                        shape: BoxShape.circle,
                       ),
-                      textAlign: TextAlign.center,
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        '${ref.watch(notificationProvider).unseenCount}',
+                        style: const TextStyle(
+                          color: AppColors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(width: 8),
         ],
@@ -171,7 +175,17 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
           : _screens[currentIndex],
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          AppRouter.navigateToAddProduct(context);
+          // Context-aware FAB behavior
+          if (currentIndex == 0 || currentIndex == 4) {
+            // Home or Profile - Show choice dialog
+            _showAddChoiceDialog(context, ref);
+          } else if (currentIndex == 1) {
+            // Items tab - Go directly to add product
+            AppRouter.navigateToAddProduct(context);
+          } else if (currentIndex == 3) {
+            // Credits tab - Show add credit dialog
+            _showAddCreditDialog(context, ref);
+          }
         },
         backgroundColor: AppColors.primary,
         child: const Icon(LucideIcons.plus, color: AppColors.white),
@@ -225,6 +239,160 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showAddChoiceDialog(BuildContext context, WidgetRef ref) {
+    final locale = ref.read(languageProvider);
+    String t(String key) => TranslationService.translate(key, locale);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t('addNew')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(LucideIcons.package, color: AppColors.primary),
+              title: Text(t('addProduct')),
+              onTap: () {
+                Navigator.pop(context);
+                AppRouter.navigateToAddProduct(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(LucideIcons.fileText, color: AppColors.orange),
+              title: Text(t('addCredit')),
+              onTap: () {
+                Navigator.pop(context);
+                _showAddCreditDialog(context, ref);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAddCreditDialog(BuildContext context, WidgetRef ref) {
+    final locale = ref.read(languageProvider);
+    String t(String key) => TranslationService.translate(key, locale);
+
+    final nameCtrl = TextEditingController();
+    final phoneCtrl = TextEditingController();
+    final itemsCtrl = TextEditingController();
+    final totalCtrl = TextEditingController();
+    final paidCtrl = TextEditingController(text: "0");
+
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(t('addCredit')),
+        content: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameCtrl,
+                  decoration: InputDecoration(
+                    labelText: t('customerName'),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  validator: (val) => (val == null || val.isEmpty) ? "${t('customerName')} Required" : null,
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    labelText: t('phoneNumber'),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: itemsCtrl,
+                  maxLines: 2,
+                  decoration: InputDecoration(
+                    labelText: t('itemsPurchased'),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  validator: (val) => (val == null || val.isEmpty) ? "${t('itemsPurchased')} Required" : null,
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: totalCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: t('totalAmount'),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  validator: (val) => (val == null || val.isEmpty) ? "${t('totalAmount')} Required" : null,
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: paidCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: t('amountPaid'),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  validator: (val) => (val == null || val.isEmpty) ? "${t('amountPaid')} Required" : null,
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(t('cancel'))),
+          TextButton(
+            onPressed: () {
+              if (!formKey.currentState!.validate()) return;
+
+              final credit = CreditNote(
+                id: Helpers.generateId(),
+                customerName: nameCtrl.text,
+                phoneNumber: phoneCtrl.text,
+                items: itemsCtrl.text,
+                totalAmount: double.parse(totalCtrl.text),
+                amountPaid: double.parse(paidCtrl.text),
+                isPaid: double.parse(paidCtrl.text) >= double.parse(totalCtrl.text),
+                date: Helpers.formatDateForStorage(DateTime.now()),
+              );
+
+              ref.read(storeProvider.notifier).addCredit(credit);
+              
+              // Mobile notification
+              final notificationTitle = t('creditAdded');
+              final notificationBody = '${credit.customerName} - ${Helpers.formatCurrency(credit.totalAmount)}';
+              NotificationService.showNotification(
+                id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+                title: notificationTitle,
+                body: notificationBody,
+              );
+              
+              // Add to notification history
+              ref.read(notificationProvider.notifier).addNotification(
+                AppNotification(
+                  id: Helpers.generateId(),
+                  title: notificationTitle,
+                  body: notificationBody,
+                  timestamp: DateTime.now(),
+                  type: 'credit_add',
+                ),
+              );
+              
+              Navigator.pop(context);
+            },
+            child: Text(t('save')),
+          ),
+        ],
       ),
     );
   }

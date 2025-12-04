@@ -34,14 +34,12 @@ class NotificationsScreen extends ConsumerWidget {
         iconTheme: const IconThemeData(color: AppColors.white),
         actions: [
           if (notificationState.notifications.isNotEmpty) ...[
-            TextButton(
+            IconButton(
               onPressed: () {
                 ref.read(notificationProvider.notifier).markAllAsSeen();
               },
-              child: Text(
-                t('markAllRead'),
-                style: const TextStyle(color: AppColors.white, fontSize: 12),
-              ),
+              tooltip: t('markAllRead'),
+              icon: const Icon(LucideIcons.checkCheck, color: AppColors.white),
             ),
             IconButton(
               icon: const Icon(LucideIcons.trash2),
@@ -119,6 +117,18 @@ class NotificationsScreen extends ConsumerWidget {
   void _navigateToRelevantScreen(BuildContext context, WidgetRef ref, String type) {
     // Navigate to relevant screen based on notification type
     if (type.startsWith('product_')) {
+      // Set appropriate filter based on product notification type
+      if (type == 'product_add' || type == 'product_edit') {
+        // For add/edit, show all products
+        ref.read(productFilterProvider.notifier).setFilter('all');
+      } else if (type == 'product_delete') {
+        // For delete, might be expired - show expired tab
+        ref.read(productFilterProvider.notifier).setFilter('expired');
+      } else {
+        // Default to all
+        ref.read(productFilterProvider.notifier).setFilter('all');
+      }
+      
       // Navigate to products tab (index 1)
       ref.read(navigationProvider.notifier).setIndex(1);
       Navigator.pop(context); // Close notifications screen

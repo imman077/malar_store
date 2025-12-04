@@ -108,6 +108,10 @@ class DashboardScreen extends ConsumerWidget {
                     count: expiredCount.toString(),
                     icon: LucideIcons.xCircle,
                     color: AppColors.red,
+                    onTap: () {
+                      ref.read(productFilterProvider.notifier).setFilter('expired');
+                      ref.read(navigationProvider.notifier).setIndex(1);
+                    },
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -117,6 +121,10 @@ class DashboardScreen extends ConsumerWidget {
                     count: freshCount.toString(),
                     icon: LucideIcons.checkCircle,
                     color: AppColors.green,
+                    onTap: () {
+                      ref.read(productFilterProvider.notifier).setFilter('fresh');
+                      ref.read(navigationProvider.notifier).setIndex(1);
+                    },
                   ),
                 ),
               ],
@@ -128,6 +136,10 @@ class DashboardScreen extends ConsumerWidget {
               icon: LucideIcons.clock,
               color: AppColors.orange,
               isFullWidth: true,
+              onTap: () {
+                ref.read(productFilterProvider.notifier).setFilter('expiringSoon');
+                ref.read(navigationProvider.notifier).setIndex(1);
+              },
             ),
 
             const SizedBox(height: 24),
