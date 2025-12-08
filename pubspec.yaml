@@ -100,17 +100,24 @@ flutter:
   # example:
   assets:
     - assets/images/
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-VariableFont.ttf
+    - family: HindMadurai
+      fonts:
+        - asset: assets/fonts/HindMadurai-Regular.ttf
+        - asset: assets/fonts/HindMadurai-Bold.ttf
+          weight: 700
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/Image2.png"
+  min_sdk_android: 21 # Required for adaptive icons
+  adaptive_icon_background: "#059669"
+  adaptive_icon_foreground: "assets/images/Image2.png"
+  remove_alpha_ios: true

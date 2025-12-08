@@ -118,6 +118,27 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     Navigator.pop(context);
   }
 
+  Widget _unitButton(String label, bool isSelected, VoidCallback onTap) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.primary : Colors.transparent,
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(productFormProvider);
@@ -274,20 +295,46 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Quantity
-            TextFormField(
-              initialValue: state.quantity,
-              decoration: InputDecoration(
-                labelText: t('quantity'),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+            // Quantity & Unit
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: TextFormField(
+                    initialValue: state.quantity,
+                    decoration: InputDecoration(
+                      labelText: t('quantity'),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      filled: true,
+                      fillColor: AppColors.white,
+                    ),
+                    keyboardType: TextInputType.number,
+                    onChanged: notifier.updateQuantity,
+                    validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                  ),
                 ),
-                filled: true,
-                fillColor: AppColors.white,
-              ),
-              keyboardType: TextInputType.number,
-              onChanged: notifier.updateQuantity,
-              validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                const SizedBox(width: 16),
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        _unitButton('Kg', state.unit == 'kg', () => notifier.updateUnit('kg')),
+                        Container(width: 1, color: Colors.grey),
+                        _unitButton('g', state.unit == 'g', () => notifier.updateUnit('g')),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
 

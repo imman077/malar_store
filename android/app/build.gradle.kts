@@ -11,30 +11,40 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.malarstores.malar_stores"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    // signingConfigs {
+    //    create("release") {
+    //        // TODO: Replace with your real keystore
+    //        storeFile = file("key.jks")
+    //        storePassword = "your-password"
+    //        keyAlias = "your-alias"
+    //        keyPassword = "your-password"
+    //    }
+    // }
+
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+        getByName("release") {
+            // Enable shrinking + minification (reduces APK size a lot)
+            isMinifyEnabled = true
+            isShrinkResources = true
+
+            // Set your real signing config
             signingConfig = signingConfigs.getByName("debug")
         }
     }

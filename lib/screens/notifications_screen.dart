@@ -123,7 +123,7 @@ class NotificationsScreen extends ConsumerWidget {
         ref.read(productFilterProvider.notifier).setFilter('all');
       } else if (type == 'product_delete') {
         // For delete, might be expired - show expired tab
-        ref.read(productFilterProvider.notifier).setFilter('expired');
+        ref.read(productFilterProvider.notifier).setFilter('all');
       } else {
         // Default to all
         ref.read(productFilterProvider.notifier).setFilter('all');

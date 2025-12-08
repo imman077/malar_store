@@ -49,13 +49,21 @@ class MyApp extends StatelessWidget {
               ),
               scaffoldBackgroundColor: AppColors.background,
               useMaterial3: true,
-              textTheme: GoogleFonts.interTextTheme(),
-              appBarTheme: AppBarTheme(
+              textTheme: const TextTheme(
+                bodyMedium: TextStyle(fontFamily: 'Inter'),
+                bodyLarge: TextStyle(fontFamily: 'Inter'),
+                labelLarge: TextStyle(fontFamily: 'Inter'),
+                titleMedium: TextStyle(fontFamily: 'Inter'),
+                titleSmall: TextStyle(fontFamily: 'Inter'),
+                headlineSmall: TextStyle(fontFamily: 'Inter'),
+              ),
+              appBarTheme: const AppBarTheme(
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.white,
                 elevation: 0,
                 centerTitle: false,
-                titleTextStyle: GoogleFonts.hindMadurai(
+                titleTextStyle: TextStyle(
+                  fontFamily: 'HindMadurai',
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: AppColors.white,

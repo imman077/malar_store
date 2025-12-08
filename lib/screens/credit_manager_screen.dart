@@ -15,6 +15,7 @@ import '../models/credit_note.dart';
 import '../providers/notification_provider.dart';
 import '../providers/store_provider.dart';
 import '../providers/language_provider.dart';
+import '../providers/credit_form_provider.dart';
 import '../services/notification_service.dart';
 import '../services/translation_service.dart';
 import '../utils/constants.dart';
@@ -95,11 +96,11 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
         ],
       ),
 
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddCreditDialog(context, locale, t),
-        backgroundColor: AppColors.primary,
-        child: const Icon(LucideIcons.plus, color: Colors.white),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () => _showAddCreditDialog(context, locale, t),
+      //   backgroundColor: AppColors.primary,
+      //   child: const Icon(LucideIcons.plus, color: Colors.white),
+      // ),
     );
   }
 
@@ -132,12 +133,15 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
           color: selected ? AppColors.primary : AppColors.lightGray,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: selected ? Colors.white : AppColors.black,
-            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: selected ? Colors.white : AppColors.black,
+              fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+            ),
           ),
         ),
       ),
@@ -205,13 +209,14 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(t('pay'),
+                  textAlign: TextAlign.center,
                       style: const TextStyle(
                           fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 20),
                   Image.asset(
                     'assets/images/qr_code.png',
-                    width: 300,
-                    height: 300,
+                    width: 500,
+                    height: 500,
                   ),
                 ],
               ),
@@ -558,99 +563,158 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
   // ---------------------------------------------------------
   void _showAddCreditDialog(
       BuildContext context, String locale, String Function(String) t) {
-    final nameCtrl = TextEditingController();
-    final phoneCtrl = TextEditingController();
-    final itemsCtrl = TextEditingController();
-    final totalCtrl = TextEditingController();
-    final paidCtrl = TextEditingController(text: "0");
-
+    // Reset form state
+    ref.read(creditFormProvider.notifier).reset();
+    
     final formKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(t('addCredit')),
-        content: SingleChildScrollView(
-          child: Form(
-            key: formKey,
-            child: Column(
-              children: [
-                _field(nameCtrl, t('customerName')),
-                const SizedBox(height: 10),
-                _field(phoneCtrl, t('phoneNumber'),
-                    keyboard: TextInputType.phone, required: false),
-                const SizedBox(height: 10),
-                _field(itemsCtrl, t('itemsPurchased'), maxLines: 2),
-                const SizedBox(height: 10),
-                _field(totalCtrl, t('totalAmount'),
-                    keyboard: TextInputType.number),
-                const SizedBox(height: 10),
-                _field(paidCtrl, t('amountPaid'),
-                    keyboard: TextInputType.number),
-              ],
-            ),
-          ),
+        content: Consumer(
+          builder: (context, ref, child) {
+            final formState = ref.watch(creditFormProvider);
+            final notifier = ref.read(creditFormProvider.notifier);
+            
+            return SingleChildScrollView(
+              child: Form(
+                key: formKey,
+                child: Column(
+                  children: [
+                    _field(
+                      initialValue: formState.customerName,
+                      onChanged: notifier.updateCustomerName,
+                      label: t('customerName'),
+                    ),
+                    const SizedBox(height: 10),
+                    _field(
+                      initialValue: formState.phoneNumber,
+                      onChanged: notifier.updatePhoneNumber,
+                      label: t('phoneNumber'),
+                      keyboard: TextInputType.phone, 
+                      required: false,
+                      validator: (val) {
+                        if (val != null && val.isNotEmpty && !RegExp(r'^[0-9]{10}$').hasMatch(val)) {
+                          return 'Enter valid 10-digit number';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _field(
+                      initialValue: formState.items,
+                      onChanged: notifier.updateItems,
+                      label: t('itemsPurchased'), 
+                      maxLines: 2
+                    ),
+                    const SizedBox(height: 10),
+                    _field(
+                      initialValue: formState.totalAmount,
+                      onChanged: notifier.updateTotalAmount,
+                      label: t('totalAmount'),
+                      keyboard: TextInputType.number,
+                      validator: (val) {
+                        if (val == null || val.isEmpty) return "Required";
+                        final amount = double.tryParse(val);
+                        if (amount == null || amount <= 0) return 'Enter valid amount > 0';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _field(
+                      initialValue: formState.amountPaid,
+                      onChanged: notifier.updateAmountPaid,
+                      label: t('amountPaid'),
+                      keyboard: TextInputType.number,
+                      validator: (val) {
+                        if (val == null || val.isEmpty) return "Required";
+                        final amount = double.tryParse(val);
+                        if (amount == null || amount < 0) return 'Enter valid amount >= 0';
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(t('cancel'))),
-          TextButton(
-            onPressed: () {
-              if (!formKey.currentState!.validate()) return;
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(t('cancel'))),
+          Consumer(
+            builder: (context, ref, child) {
+              return TextButton(
+                onPressed: () {
+                  if (!formKey.currentState!.validate()) return;
+                  
+                  final formState = ref.read(creditFormProvider);
+                  final totalAmount = double.tryParse(formState.totalAmount) ?? 0.0;
+                  final amountPaid = double.tryParse(formState.amountPaid) ?? 0.0;
 
-              final credit = CreditNote(
-                id: Helpers.generateId(),
-                customerName: nameCtrl.text,
-                phoneNumber: phoneCtrl.text,
-                items: itemsCtrl.text,
-                totalAmount: double.parse(totalCtrl.text),
-                amountPaid: double.parse(paidCtrl.text),
-                isPaid:
-                    double.parse(paidCtrl.text) >= double.parse(totalCtrl.text),
-                date: Helpers.formatDateForStorage(DateTime.now()),
-              );
+                  final credit = CreditNote(
+                    id: Helpers.generateId(),
+                    customerName: formState.customerName,
+                    phoneNumber: formState.phoneNumber,
+                    items: formState.items,
+                    totalAmount: totalAmount,
+                    amountPaid: amountPaid,
+                    isPaid: amountPaid >= totalAmount,
+                    date: Helpers.formatDateForStorage(DateTime.now()),
+                  );
 
-              ref.read(storeProvider.notifier).addCredit(credit);
-              
-              // Mobile notification
-              final notificationTitle = t('creditAdded');
-              final notificationBody = '${credit.customerName} - ${Helpers.formatCurrency(credit.totalAmount)}';
-              NotificationService.showNotification(
-                id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-                title: notificationTitle,
-                body: notificationBody,
+                  ref.read(storeProvider.notifier).addCredit(credit);
+                  
+                  // Mobile notification
+                  final notificationTitle = t('creditAdded');
+                  final notificationBody = '${credit.customerName} - ${Helpers.formatCurrency(credit.totalAmount)}';
+                  NotificationService.showNotification(
+                    id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+                    title: notificationTitle,
+                    body: notificationBody,
+                  );
+                  
+                  // Add to notification history
+                  ref.read(notificationProvider.notifier).addNotification(
+                    AppNotification(
+                      id: Helpers.generateId(),
+                      title: notificationTitle,
+                      body: notificationBody,
+                      timestamp: DateTime.now(),
+                      type: 'credit_add',
+                    ),
+                  );
+                  
+                  Navigator.pop(dialogContext);
+                },
+                child: Text(t('save')),
               );
-              
-              // Add to notification history
-              ref.read(notificationProvider.notifier).addNotification(
-                AppNotification(
-                  id: Helpers.generateId(),
-                  title: notificationTitle,
-                  body: notificationBody,
-                  timestamp: DateTime.now(),
-                  type: 'credit_add',
-                ),
-              );
-              
-              Navigator.pop(context);
             },
-            child: Text(t('save')),
           )
         ],
       ),
     );
   }
 
-  Widget _field(TextEditingController c, String label,
-      {int maxLines = 1, TextInputType? keyboard, bool required = true}) {
+  Widget _field({
+    required String initialValue,
+    required ValueChanged<String> onChanged,
+    required String label,
+    int maxLines = 1,
+    TextInputType? keyboard,
+    bool required = true,
+    String? Function(String?)? validator,
+  }) {
     return TextFormField(
-      controller: c,
+      initialValue: initialValue,
+      onChanged: onChanged,
       maxLines: maxLines,
       keyboardType: keyboard,
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
       ),
-      validator: (v) => required && (v == null || v.isEmpty) ? "Required" : null,
+      validator: validator ?? (v) => required && (v == null || v.isEmpty) ? "Required" : null,
     );
   }
 
@@ -659,62 +723,79 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
   // ---------------------------------------------------------
   void _showEditCreditDialog(
       BuildContext context, CreditNote credit, String locale, String Function(String) t) {
-    final payCtrl = TextEditingController();
+    // Reset payment input
+    ref.read(creditFormProvider.notifier).resetPaymentInput();
+    
     final key = GlobalKey<FormState>();
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(t('addPayment')),
-        content: Form(
-          key: key,
-          child: TextFormField(
-            controller: payCtrl,
-            decoration: InputDecoration(labelText: t('amountPaid')),
-            keyboardType: TextInputType.number,
-            validator: (v) =>
-                v == null || v.isEmpty ? t('required') : null,
-          ),
+        content: Consumer(
+          builder: (context, ref, child) {
+            return Form(
+              key: key,
+              child: TextFormField(
+                initialValue: ref.watch(creditFormProvider).paymentInput,
+                onChanged: ref.read(creditFormProvider.notifier).updatePaymentInput,
+                decoration: InputDecoration(labelText: t('amountPaid')),
+                keyboardType: TextInputType.number,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return t('required');
+                  final amount = double.tryParse(v);
+                  if (amount == null || amount <= 0) return 'Enter valid amount > 0';
+                  return null;
+                },
+              ),
+            );
+          },
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(t('cancel'))),
-          TextButton(
-            onPressed: () {
-              if (!key.currentState!.validate()) return;
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(t('cancel'))),
+          Consumer(
+            builder: (context, ref, child) {
+              return TextButton(
+                onPressed: () {
+                  if (!key.currentState!.validate()) return;
+                  
+                  final paymentInput = ref.read(creditFormProvider).paymentInput;
+                  final added = double.tryParse(paymentInput) ?? 0.0;
+                  
+                  final updated = credit.copyWith(
+                    amountPaid: credit.amountPaid + added,
+                    isPaid: (credit.amountPaid + added) >= credit.totalAmount,
+                  );
 
-              final added = double.parse(payCtrl.text);
-              final updated = credit.copyWith(
-                amountPaid: credit.amountPaid + added,
-                isPaid: (credit.amountPaid + added) >= credit.totalAmount,
-              );
-
-              ref.read(storeProvider.notifier).updateCredit(updated);
-              Navigator.pop(context);
-              
-              // Mobile notification with pending amount
-              final notificationTitle = t('paymentUpdated');
-              final notificationBody = updated.isPaid 
-                  ? '${credit.customerName} - ${t('paid')}'
-                  : '${credit.customerName} - ${t('pending')}: ${Helpers.formatCurrency(updated.pendingAmount)}';
-              
-              NotificationService.showNotification(
-                id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-                title: notificationTitle,
-                body: notificationBody,
-              );
-              
-              // Add to notification history
-              ref.read(notificationProvider.notifier).addNotification(
-                AppNotification(
-                  id: Helpers.generateId(),
-                  title: notificationTitle,
-                  body: notificationBody,
-                  timestamp: DateTime.now(),
-                  type: 'credit_edit',
-                ),
+                  ref.read(storeProvider.notifier).updateCredit(updated);
+                  Navigator.pop(dialogContext);
+                  
+                  // Mobile notification with pending amount
+                  final notificationTitle = t('paymentUpdated');
+                  final notificationBody = updated.isPaid 
+                      ? '${credit.customerName} - ${t('paid')}'
+                      : '${credit.customerName} - ${t('pending')}: ${Helpers.formatCurrency(updated.pendingAmount)}';
+                  
+                  NotificationService.showNotification(
+                    id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+                    title: notificationTitle,
+                    body: notificationBody,
+                  );
+                  
+                  // Add to notification history
+                  ref.read(notificationProvider.notifier).addNotification(
+                    AppNotification(
+                      id: Helpers.generateId(),
+                      title: notificationTitle,
+                      body: notificationBody,
+                      timestamp: DateTime.now(),
+                      type: 'credit_edit',
+                    ),
+                  );
+                },
+                child: Text(t('save')),
               );
             },
-            child: Text(t('save')),
           ),
         ],
       ),

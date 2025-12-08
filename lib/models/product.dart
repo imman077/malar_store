@@ -7,6 +7,7 @@ class Product {
   final String category;
   final double price;
   final int quantity;
+  final String unit; // 'kg' or 'g' or 'Qty'
   final String expiryDate; // YYYY-MM-DD format
   final String? imageBase64;
 
@@ -16,6 +17,7 @@ class Product {
     required this.category,
     required this.price,
     required this.quantity,
+    this.unit = 'kg', // Default to kg
     required this.expiryDate,
     this.imageBase64,
   });
@@ -40,6 +42,7 @@ class Product {
       'category': category,
       'price': price,
       'quantity': quantity,
+      'unit': unit,
       'expiryDate': expiryDate,
       'imageBase64': imageBase64,
     };
@@ -53,6 +56,7 @@ class Product {
       category: json['category'] as String,
       price: (json['price'] as num).toDouble(),
       quantity: json['quantity'] as int,
+      unit: json['unit'] as String? ?? 'kg',
       expiryDate: json['expiryDate'] as String,
       imageBase64: json['imageBase64'] as String?,
     );
@@ -65,6 +69,7 @@ class Product {
     String? category,
     double? price,
     int? quantity,
+    String? unit,
     String? expiryDate,
     String? imageBase64,
   }) {
@@ -74,6 +79,7 @@ class Product {
       category: category ?? this.category,
       price: price ?? this.price,
       quantity: quantity ?? this.quantity,
+      unit: unit ?? this.unit,
       expiryDate: expiryDate ?? this.expiryDate,
       imageBase64: imageBase64 ?? this.imageBase64,
     );

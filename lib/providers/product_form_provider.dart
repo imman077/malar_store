@@ -9,6 +9,7 @@ class ProductFormState {
   final String customCategory;
   final String price;
   final String quantity;
+  final String unit;
   final DateTime? expiryDate;
   final String? imageBase64;
 
@@ -19,6 +20,7 @@ class ProductFormState {
     this.customCategory = '',
     this.price = '',
     this.quantity = '',
+    this.unit = 'kg',
     this.expiryDate,
     this.imageBase64,
   });
@@ -30,6 +32,7 @@ class ProductFormState {
     String? customCategory,
     String? price,
     String? quantity,
+    String? unit,
     DateTime? expiryDate,
     String? imageBase64,
   }) {
@@ -40,6 +43,7 @@ class ProductFormState {
       customCategory: customCategory ?? this.customCategory,
       price: price ?? this.price,
       quantity: quantity ?? this.quantity,
+      unit: unit ?? this.unit,
       expiryDate: expiryDate ?? this.expiryDate,
       imageBase64: imageBase64 ?? this.imageBase64,
     );
@@ -58,6 +62,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
         customCategory: '',
         price: product.price.toString(),
         quantity: product.quantity.toString(),
+        unit: product.unit,
         expiryDate: Helpers.parseDate(product.expiryDate),
         imageBase64: product.imageBase64,
       );
@@ -71,12 +76,14 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
   void updateCustomCategory(String value) => state = state.copyWith(customCategory: value);
   void updatePrice(String value) => state = state.copyWith(price: value);
   void updateQuantity(String value) => state = state.copyWith(quantity: value);
+  void updateUnit(String value) => state = state.copyWith(unit: value);
   void updateExpiryDate(DateTime? value) => state = state.copyWith(expiryDate: value);
   void updateImage(String? value) => state = state.copyWith(imageBase64: value);
 
   void reset() {
     state = ProductFormState(
       expiryDate: DateTime.now().add(const Duration(days: 30)),
+      unit: 'kg',
     );
   }
 
@@ -95,6 +102,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
       category: finalCategory,
       price: double.tryParse(state.price) ?? 0.0,
       quantity: int.tryParse(state.quantity) ?? 0,
+      unit: state.unit,
       expiryDate: Helpers.formatDateForStorage(state.expiryDate!),
       imageBase64: state.imageBase64,
     );

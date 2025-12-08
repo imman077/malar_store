@@ -185,7 +185,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
               // Mobile notification
               final locale = ref.read(languageProvider);
               final notificationTitle = TranslationService.translate('productDeleted', locale);
-              final notificationBody = product.name;
+              final notificationBody = "${product.name} deleted successfully";
               NotificationService.showNotification(
                 id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
                 title: notificationTitle,
