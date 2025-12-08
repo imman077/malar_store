@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/app_notification.dart';
+import '../services/storage_service.dart';
 
 class NotificationState {
   final List<AppNotification> notifications;
@@ -28,33 +28,18 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
     _loadNotifications();
   }
 
-  static const String _storageKey = 'app_notifications';
-
   Future<void> _loadNotifications() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? notificationsJson = prefs.getString(_storageKey);
-    
-    if (notificationsJson != null) {
-      final List<dynamic> decoded = jsonDecode(notificationsJson);
-      final notifications = decoded
-          .map((json) => AppNotification.fromJson(json))
-          .toList();
-      
-      final unseenCount = notifications.where((n) => !n.seen).length;
-      
-      state = NotificationState(
-        notifications: notifications,
-        unseenCount: unseenCount,
-      );
-    }
+    final notifications = await StorageService.loadNotifications();
+    final unseenCount = notifications.where((n) => !n.seen).length;
+
+    state = NotificationState(
+      notifications: notifications,
+      unseenCount: unseenCount,
+    );
   }
 
   Future<void> _saveNotifications() async {
-    final prefs = await SharedPreferences.getInstance();
-    final encoded = jsonEncode(
-      state.notifications.map((n) => n.toJson()).toList(),
-    );
-    await prefs.setString(_storageKey, encoded);
+    await StorageService.saveNotifications(state.notifications);
   }
 
   void addNotification(AppNotification notification) {
@@ -105,6 +90,7 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
     _saveNotifications();
   }
 }
+
 
 final notificationProvider =
     StateNotifierProvider<NotificationNotifier, NotificationState>((ref) {

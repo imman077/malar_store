@@ -195,19 +195,36 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
             const SizedBox(height: 16),
 
             // Product Name
-            TextFormField(
-              initialValue: state.name,
-              decoration: InputDecoration(
-                labelText: t('productName'),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                filled: true,
-                fillColor: AppColors.white,
-              ),
-              onChanged: notifier.updateName,
-              validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
-            ),
+           TextFormField(
+  initialValue: state.name,
+  textCapitalization: TextCapitalization.sentences,
+  decoration: InputDecoration(
+    labelText: t('productName'),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+    filled: true,
+    fillColor: AppColors.white,
+  ),
+  onChanged: (value) {
+    if (value.isEmpty) {
+      notifier.updateName(value);
+      return;
+    }
+
+    // Auto-capitalize only first character
+    final formatted = value[0].toUpperCase() + value.substring(1);
+
+    // Update state only if changed
+    if (formatted != value) {
+      notifier.updateName(formatted);
+    } else {
+      notifier.updateName(value);
+    }
+  },
+  validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+),
+
             const SizedBox(height: 16),
 
             // Category Dropdown

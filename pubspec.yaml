@@ -39,7 +39,8 @@ dependencies:
   flutter_riverpod: ^2.6.1
 
   # Local Storage
-  shared_preferences: ^2.3.3
+  hive_flutter: ^1.1.0
+  flutter_secure_storage: ^9.2.2
 
   # Icons
   lucide_icons: ^0.257.0

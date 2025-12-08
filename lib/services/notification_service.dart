@@ -1,5 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:flutter/material.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -8,17 +8,13 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
   
-  // In-app notification callback for web
-  static Function(String title, String body)? onShowInAppNotification;
+
 
   static Future<void> init() async {
     // Initialize timezone data
     tz.initializeTimeZones();
     
-    // Skip native notification setup on web
-    if (kIsWeb) {
-      return;
-    }
+
 
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -60,13 +56,7 @@ class NotificationService {
     required String title,
     required String body,
   }) async {
-    // For web, use in-app notification callback
-    if (kIsWeb) {
-      if (onShowInAppNotification != null) {
-        onShowInAppNotification!(title, body);
-      }
-      return;
-    }
+
 
     // For mobile/desktop, use native notifications
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
@@ -106,7 +96,7 @@ class NotificationService {
     required String productName,
     required int hour, // Hour of day (0-23)
   }) async {
-    if (kIsWeb) return; // Skip on web
+
 
     await _notificationsPlugin.zonedSchedule(
       id,
@@ -140,7 +130,7 @@ class NotificationService {
     required String customerName,
     required double pendingAmount,
   }) async {
-    if (kIsWeb) return; // Skip on web
+
 
     // Schedule first notification in 12 hours
     final scheduledTime = tz.TZDateTime.now(tz.local).add(const Duration(hours: 12));
@@ -172,13 +162,13 @@ class NotificationService {
 
   // Cancel a scheduled notification
   static Future<void> cancelNotification(int id) async {
-    if (kIsWeb) return;
+
     await _notificationsPlugin.cancel(id);
   }
 
   // Cancel all scheduled notifications
   static Future<void> cancelAllNotifications() async {
-    if (kIsWeb) return;
+
     await _notificationsPlugin.cancelAll();
   }
 

@@ -30,6 +30,34 @@ class ProductCard extends StatelessWidget {
     }
   }
 
+  String _getTranslatedCategory() {
+    // Category mapping between English and Tamil
+    final categoryMap = {
+      // English to Tamil
+      'Vegetables': 'காய்கறிகள்',
+      'Masala': 'மசாலா',
+      'Other': 'மற்றவை',
+      // Tamil to English
+      'காய்கறிகள்': 'Vegetables',
+      'மசாலா': 'Masala',
+      'மற்றவை': 'Other',
+    };
+
+    // If it's a predefined category, translate it
+    if (categoryMap.containsKey(product.category)) {
+      final translatedCategory = categoryMap[product.category];
+      // Return translated version if locale matches, otherwise return as-is
+      if (locale == 'ta' && translatedCategory != null && translatedCategory.contains(RegExp(r'[\u0B80-\u0BFF]'))) {
+        return translatedCategory;
+      } else if (locale == 'en' && translatedCategory != null && !translatedCategory.contains(RegExp(r'[\u0B80-\u0BFF]'))) {
+        return translatedCategory;
+      }
+    }
+    
+    // For custom categories or if already in correct language, return as-is
+    return product.category;
+  }
+
   @override
   Widget build(BuildContext context) {
     final Uint8List? imageBytes = Helpers.decodeBase64ToImage(product.imageBase64);
@@ -90,7 +118,7 @@ class ProductCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  product.category,
+                  _getTranslatedCategory(),
                   style: TextStyle(
                     fontSize: 13,
                     color: AppColors.gray,

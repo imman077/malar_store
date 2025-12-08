@@ -265,22 +265,13 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
 
                     const SizedBox(height: 20),
 
-                    // SHARE BUTTON
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
+                    // SHARE BUTTON - Circular, Right Aligned
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: FloatingActionButton(
                         onPressed: () => _shareReceipt(key),
-                        icon: const Icon(Icons.share, size: 20),
-                        label: Text(t('share')),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+                        backgroundColor: AppColors.primary,
+                        child: const Icon(Icons.share, color: Colors.white),
                       ),
                     ),
                   ],
@@ -291,9 +282,23 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
             Positioned(
               right: 16,
               top: 16,
-              child: IconButton(
-                icon: const Icon(Icons.close, size: 30),
-                onPressed: () => Navigator.pop(context),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  icon: const Icon(LucideIcons.x, size: 20),
+                  onPressed: () => Navigator.pop(context),
+                  color: AppColors.black,
+                ),
               ),
             )
           ],
@@ -631,6 +636,8 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
                         if (val == null || val.isEmpty) return "Required";
                         final amount = double.tryParse(val);
                         if (amount == null || amount < 0) return 'Enter valid amount >= 0';
+                        final total = double.tryParse(formState.totalAmount) ?? 0.0;
+                        if (amount > total) return 'Cannot exceed total amount';
                         return null;
                       },
                     ),
@@ -745,6 +752,7 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
                   if (v == null || v.isEmpty) return t('required');
                   final amount = double.tryParse(v);
                   if (amount == null || amount <= 0) return 'Enter valid amount > 0';
+                  if (amount > credit.pendingAmount) return 'Cannot exceed pending amount';
                   return null;
                 },
               ),

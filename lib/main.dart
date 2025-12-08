@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_web_plugins/url_strategy.dart';   // <-- ADD THIS
+
 import 'services/storage_service.dart';
 import 'services/notification_service.dart';
 import 'utils/constants.dart';
@@ -12,8 +12,7 @@ import 'widgets/in_app_notification.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Enable clean URL without hash (#)
-  setUrlStrategy(PathUrlStrategy());
+
 
   await StorageService.init();
   await NotificationService.init();
@@ -34,10 +33,7 @@ class MyApp extends StatelessWidget {
       key: InAppNotificationOverlay.globalKey,
       child: Builder(
         builder: (context) {
-          // Set up in-app notification callback for web
-          NotificationService.onShowInAppNotification = (title, body) {
-            InAppNotificationOverlay.show(context, title, body);
-          };
+
 
           return MaterialApp(
             title: 'Malar Stores',
