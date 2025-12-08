@@ -1,27 +1,67 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'services/storage_service.dart';
 import 'services/notification_service.dart';
+import 'models/category.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'utils/constants.dart';
 import 'utils/app_router.dart';
 import 'screens/splash_screen.dart';
 import 'widgets/in_app_notification.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
+    try {
+      Hive.registerAdapter(CategoryAdapter());
+      await StorageService.init();
+      await NotificationService.init();
+    } catch (e, stack) {
+      debugPrint('Initialization Error: $e\n$stack');
+      runApp(
+        MaterialApp(
+          home: Scaffold(
+            backgroundColor: Colors.white,
+            body: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Startup Error',
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      e.toString(),
+                      style: const TextStyle(color: Colors.black87),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      return;
+    }
 
-
-  await StorageService.init();
-  await NotificationService.init();
-
-  runApp(
-    const ProviderScope(
-      child: MyApp(),
-    ),
-  );
+    runApp(
+      const ProviderScope(
+        child: MyApp(),
+      ),
+    );
+  }, (error, stack) {
+    debugPrint('Global Error: $error\n$stack');
+  });
 }
 
 class MyApp extends StatelessWidget {

@@ -271,6 +271,14 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
                 _showAddCreditDialog(context, ref);
               },
             ),
+            ListTile(
+              leading: const Icon(LucideIcons.shoppingCart, color: AppColors.green),
+              title: Text(locale == 'ta' ? 'புதிய ஆர்டர் (Shop)' : 'New Order (Shop)'),
+              onTap: () {
+                Navigator.pop(context);
+                AppRouter.navigateToShop(context);
+              },
+            ),
           ],
         ),
       ),

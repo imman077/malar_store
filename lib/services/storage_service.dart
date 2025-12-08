@@ -2,18 +2,65 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/product.dart';
+import '../models/category.dart';
 import '../models/credit_note.dart';
 import '../models/app_notification.dart';
 import '../utils/constants.dart';
+import '../utils/helpers.dart';
 
 class StorageService {
-  static late Box _box;
+  static late Box<dynamic> _box;
+  static late Box<AppNotification> _notificationsBox;
+  static late Box<Category> _categoryBox;
   static const _secureStorage = FlutterSecureStorage();
 
   // Initialize Hive and Secure Storage
   static Future<void> init() async {
     await Hive.initFlutter();
-    _box = await Hive.openBox('malar_store_box');
+    
+    // Open Boxes
+    _box = await Hive.openBox('malar_store_box'); // Main settings box (legacy name kept)
+    _notificationsBox = await Hive.openBox<AppNotification>(StorageKeys.notifications);
+    _categoryBox = await Hive.openBox<Category>(StorageKeys.categories);
+
+    // Seed Categories if empty
+    if (_categoryBox.isEmpty) {
+      await _seedCategories();
+    }
+  }
+
+  static Future<void> _seedCategories() async {
+    // English Categories
+    final enCats = ProductCategories.categories;
+    // Tamil Categories
+    final taCats = ProductCategories.categoriesTamil;
+    
+    // Assuming the lists are parallel and same length
+    for (int i = 0; i < enCats.length; i++) {
+        final category = Category(
+          id: Helpers.generateId(),
+          nameEn: enCats[i],
+          nameTa: i < taCats.length ? taCats[i] : enCats[i],
+        );
+        await _categoryBox.put(category.id, category);
+    }
+  }
+
+  // --- Category Methods ---
+  static List<Category> getAllCategories() {
+    return _categoryBox.values.toList();
+  }
+
+  static Future<void> addCategory(Category category) async {
+    await _categoryBox.put(category.id, category);
+  }
+
+  static Future<void> updateCategory(Category category) async {
+    await _categoryBox.put(category.id, category);
+  }
+
+  static Future<void> deleteCategory(String id) async {
+    await _categoryBox.delete(id);
   }
 
   // --- Secure Storage Methods ---

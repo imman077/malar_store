@@ -19,6 +19,7 @@ class StorageKeys {
   static const String credits = 'credits';
   static const String language = 'language';
   static const String notifications = 'app_notifications';
+  static const String categories = 'categories';
 }
 
 // Product Categories

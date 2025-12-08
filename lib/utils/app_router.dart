@@ -6,6 +6,9 @@ import '../screens/product_list_screen.dart';
 import '../screens/product_form_screen.dart';
 import '../screens/credit_manager_screen.dart';
 import '../screens/barcode_scanner_screen.dart';
+import '../screens/category_manager_screen.dart';
+import '../screens/shop_screen.dart';
+import '../screens/cart_screen.dart';
 import '../models/product.dart';
 
 class AppRouter {
@@ -18,6 +21,9 @@ class AppRouter {
   static const String editProduct = '/products/edit';
   static const String creditManager = '/credit-manager';
   static const String barcodeScanner = '/barcode-scanner';
+  static const String categories = '/categories';
+  static const String shop = '/shop';
+  static const String cart = '/cart';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -72,6 +78,24 @@ class AppRouter {
           builder: (_) => const BarcodeScannerScreen(),
         );
 
+      case categories:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const CategoryManagerScreen(),
+        );
+
+      case shop:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const ShopScreen(),
+        );
+
+      case cart:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const CartScreen(),
+        );
+
       default:
         return MaterialPageRoute(
           settings: settings,
@@ -109,4 +133,13 @@ class AppRouter {
 
   static Future<String?> navigateToBarcodeScanner(BuildContext context) =>
       Navigator.pushNamed<String>(context, barcodeScanner);
+
+  static void navigateToCategories(BuildContext context) =>
+      Navigator.pushNamed(context, categories);
+
+  static void navigateToShop(BuildContext context) =>
+      Navigator.pushNamed(context, shop);
+
+  static void navigateToCart(BuildContext context) =>
+      Navigator.pushNamed(context, cart);
 }

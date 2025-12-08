@@ -13,6 +13,7 @@ import '../utils/constants.dart';
 import '../utils/helpers.dart';
 import '../utils/app_router.dart';
 import '../widgets/image_picker_widget.dart';
+import '../providers/category_provider.dart';
 
 class ProductFormScreen extends ConsumerStatefulWidget {
   final Product? product;
@@ -230,37 +231,22 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
             // Category Dropdown
             DropdownButtonFormField<String>(
               value: () {
-                // Normalize category to match current language
                 if (state.category.isEmpty) return null;
                 
-                // Check if category exists in current language list
-                if (categories.contains(state.category)) {
-                  return state.category;
+                final allCats = ref.read(categoryProvider);
+                
+                // Try to find if state.category matches any En or Ta name
+                for (var cat in allCats) {
+                  if (cat.nameEn == state.category || cat.nameTa == state.category) {
+                    // Return English name for consistency
+                    return cat.nameEn;
+                  }
                 }
                 
-                // Map between English and Tamil categories
-                final categoryMap = {
-                  'Vegetables': 'காய்கறிகள்',
-                  'காய்கறிகள்': 'Vegetables',
-                  'Masala': 'மசாலா',
-                  'மசாலா': 'Masala',
-                  'Other': 'மற்றவை',
-                  'மற்றவை': 'Other',
-                };
-                
-                // Try to find mapped category
-                final mappedCategory = categoryMap[state.category];
-                if (mappedCategory != null && categories.contains(mappedCategory)) {
-                  // Update the state with the correct language category
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    notifier.updateCategory(mappedCategory);
-                  });
-                  return mappedCategory;
-                }
-                
-                // If it's a custom category, return 'Other' in current language
-                return locale == 'ta' ? 'மற்றவை' : 'Other';
+                // Return stored value if not found
+                return state.category.isNotEmpty ? state.category : null;
               }(),
+              
               decoration: InputDecoration(
                 labelText: t('category'),
                 border: OutlineInputBorder(
@@ -269,10 +255,20 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 filled: true,
                 fillColor: AppColors.white,
               ),
-              items: categories.map((cat) {
-                return DropdownMenuItem(value: cat, child: Text(cat));
-              }).toList(),
-              onChanged: notifier.updateCategory,
+              items: () {
+                 final cats = ref.watch(categoryProvider);
+                 return cats.map((cat) {
+                   return DropdownMenuItem<String>(
+                     value: cat.nameEn,
+                     child: Text(locale == 'ta' ? cat.nameTa : cat.nameEn),
+                   );
+                 }).toList();
+              }(),
+              onChanged: (val) {
+                if (val != null) {
+                  notifier.updateCategory(val);
+                }
+              },
               validator: (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 16),

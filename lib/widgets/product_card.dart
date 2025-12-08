@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../models/product.dart';
+import '../services/storage_service.dart';
 import '../utils/constants.dart';
 import '../utils/helpers.dart';
 
-class ProductCard extends StatelessWidget {
+class ProductCard extends ConsumerWidget {
   final Product product;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -30,36 +32,41 @@ class ProductCard extends StatelessWidget {
     }
   }
 
-  String _getTranslatedCategory() {
-    // Category mapping between English and Tamil
+  String _getTranslatedCategory(WidgetRef ref) {
+    // Get all dynamic categories
+    final allCats = StorageService.getAllCategories(); 
+    
+    // Try to find if product.category matches any known Category
+    for (var cat in allCats) {
+      if (cat.nameEn == product.category || cat.nameTa == product.category) {
+        return locale == 'ta' ? cat.nameTa : cat.nameEn;
+      }
+    }
+    
+    // Fallback: Use the old static map just in case
     final categoryMap = {
-      // English to Tamil
       'Vegetables': 'காய்கறிகள்',
       'Masala': 'மசாலா',
       'Other': 'மற்றவை',
-      // Tamil to English
       'காய்கறிகள்': 'Vegetables',
       'மசாலா': 'Masala',
       'மற்றவை': 'Other',
     };
 
-    // If it's a predefined category, translate it
     if (categoryMap.containsKey(product.category)) {
-      final translatedCategory = categoryMap[product.category];
-      // Return translated version if locale matches, otherwise return as-is
-      if (locale == 'ta' && translatedCategory != null && translatedCategory.contains(RegExp(r'[\u0B80-\u0BFF]'))) {
-        return translatedCategory;
-      } else if (locale == 'en' && translatedCategory != null && !translatedCategory.contains(RegExp(r'[\u0B80-\u0BFF]'))) {
-        return translatedCategory;
+      final translated = categoryMap[product.category];
+       if (locale == 'ta' && translated != null && translated.contains(RegExp(r'[\u0B80-\u0BFF]'))) {
+        return translated;
+      } else if (locale == 'en' && translated != null && !translated.contains(RegExp(r'[\u0B80-\u0BFF]'))) {
+        return translated;
       }
     }
     
-    // For custom categories or if already in correct language, return as-is
     return product.category;
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final Uint8List? imageBytes = Helpers.decodeBase64ToImage(product.imageBase64);
 
     return Container(
@@ -118,7 +125,7 @@ class ProductCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _getTranslatedCategory(),
+                  _getTranslatedCategory(ref),
                   style: TextStyle(
                     fontSize: 13,
                     color: AppColors.gray,

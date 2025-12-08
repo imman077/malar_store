@@ -5,6 +5,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../providers/language_provider.dart';
 import '../services/translation_service.dart';
 import '../utils/constants.dart';
+import '../utils/app_router.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -105,6 +106,16 @@ class ProfileScreen extends ConsumerWidget {
               subtitle: locale == 'ta' ? 'இயக்கப்பட்டது' : 'Enabled',
               onTap: () {
                 // TODO: Implement notifications settings
+              },
+            ),
+
+            // Category Setting
+            _buildSettingCard(
+              icon: LucideIcons.tags,
+              title: locale == 'ta' ? 'வகைகளை நிர்வகி' : 'Manage Categories',
+              subtitle: locale == 'ta' ? 'நிர்வகிக்கவும்' : 'Add/Edit Categories',
+              onTap: () {
+                AppRouter.navigateToCategories(context);
               },
             ),
 

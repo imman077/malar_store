@@ -53,95 +53,98 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
       return true;
     }).toList();
 
-    return Column(
-      children: [
-        // Search Bar
-        Container(
-          padding: const EdgeInsets.all(16),
-          color: AppColors.white,
-          child: TextField(
-            onChanged: (value) {
-              setState(() {
-                _searchQuery = value;
-              });
-            },
-            decoration: InputDecoration(
-              hintText: t('search'),
-              prefixIcon: const Icon(LucideIcons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.lightGray),
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: Column(
+        children: [
+          // Search Bar
+          Container(
+            padding: const EdgeInsets.all(16),
+            color: AppColors.white,
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+              decoration: InputDecoration(
+                hintText: t('search'),
+                prefixIcon: const Icon(LucideIcons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.lightGray),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.lightGray),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                ),
+                filled: true,
+                fillColor: AppColors.background,
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.lightGray),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primary, width: 2),
-              ),
-              filled: true,
-              fillColor: AppColors.background,
             ),
           ),
-        ),
 
-        // Filter Chips
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: AppColors.white,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildFilterChip(t('all'), 'all'),
-                const SizedBox(width: 8),
-                _buildFilterChip(t('expired'), 'expired'),
-                const SizedBox(width: 8),
-                _buildFilterChip(t('expiringSoon'), 'expiringSoon'),
-                const SizedBox(width: 8),
-                _buildFilterChip(t('fresh'), 'fresh'),
-              ],
+          // Filter Chips
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: AppColors.white,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildFilterChip(t('all'), 'all'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(t('expired'), 'expired'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(t('expiringSoon'), 'expiringSoon'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(t('fresh'), 'fresh'),
+                ],
+              ),
             ),
           ),
-        ),
 
-        // Product List
-        Expanded(
-          child: filteredProducts.isEmpty
-              ? Center(
-                  child: Text(
-                    t('noItems'),
-                    style: TextStyle(
-                      color: AppColors.gray,
-                      fontSize: 14,
+          // Product List
+          Expanded(
+            child: filteredProducts.isEmpty
+                ? Center(
+                    child: Text(
+                      t('noItems'),
+                      style: TextStyle(
+                        color: AppColors.gray,
+                        fontSize: 14,
+                      ),
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: () async {
+                      await ref.read(storeProvider.notifier).refresh();
+                    },
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: filteredProducts.length,
+                      itemBuilder: (context, index) {
+                        final product = filteredProducts[index];
+                        return ProductCard(
+                          product: product,
+                          locale: locale,
+                          onEdit: () {
+                            AppRouter.navigateToEditProduct(context, product);
+                          },
+                          onDelete: () {
+                            _showDeleteDialog(context, product.id, t);
+                          },
+                        );
+                      },
                     ),
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: () async {
-                    await ref.read(storeProvider.notifier).refresh();
-                  },
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filteredProducts.length,
-                    itemBuilder: (context, index) {
-                      final product = filteredProducts[index];
-                      return ProductCard(
-                        product: product,
-                        locale: locale,
-                        onEdit: () {
-                          AppRouter.navigateToEditProduct(context, product);
-                        },
-                        onDelete: () {
-                          _showDeleteDialog(context, product.id, t);
-                        },
-                      );
-                    },
-                  ),
-                ),
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 

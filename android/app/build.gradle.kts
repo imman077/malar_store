@@ -41,8 +41,8 @@ android {
     buildTypes {
         getByName("release") {
             // Enable shrinking + minification (reduces APK size a lot)
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
 
             // Set your real signing config
             signingConfig = signingConfigs.getByName("debug")
