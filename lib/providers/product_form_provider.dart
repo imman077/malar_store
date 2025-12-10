@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/product.dart';
 import '../utils/helpers.dart';
+import '../utils/constants.dart';
 
 class ProductFormState {
   final String? id;
@@ -55,11 +56,18 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 
   void setProduct(Product? product) {
     if (product != null) {
+      // Check if the category is a standard one
+      final isStandard = ProductCategories.categories.contains(product.category) || 
+                         ProductCategories.categoriesTamil.contains(product.category);
+      
+      final category = isStandard ? product.category : 'Other';
+      final customCategory = isStandard ? '' : product.category;
+
       state = ProductFormState(
         id: product.id,
         name: product.name,
-        category: product.category,
-        customCategory: '',
+        category: category,
+        customCategory: customCategory,
         price: product.price.toString(),
         quantity: product.quantity.toString(),
         unit: product.unit,

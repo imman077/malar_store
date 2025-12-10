@@ -3,6 +3,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
+import '../models/product.dart';
+import '../utils/helpers.dart';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
@@ -117,7 +119,7 @@ class NotificationService {
           presentSound: true,
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
@@ -154,10 +156,69 @@ class NotificationService {
           presentSound: true,
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
     );
+  }
+
+  // Schedule daily notifications for 7 days before expiry
+  static Future<void> scheduleExpiryReminders(Product product) async {
+    final expiryDate = Helpers.parseDate(product.expiryDate);
+    if (expiryDate == null) return;
+
+    // Base ID from product ID hash
+    final baseId = product.id.hashCode;
+
+    // Clear any existing notifications for this product (offsets 1-7)
+    for (int i = 1; i <= 7; i++) {
+       await cancelNotification(baseId + i);
+    }
+
+    // Don't schedule if already expired or expiring today
+    if (expiryDate.isBefore(DateTime.now())) return;
+
+    // Schedule for 7 days before
+    for (int days = 7; days >= 1; days--) {
+        final notificationDate = expiryDate.subtract(Duration(days: days));
+        
+        // Target time: 9:00 AM on that day
+        final scheduledTime = tz.TZDateTime(
+          tz.local, 
+          notificationDate.year, 
+          notificationDate.month, 
+          notificationDate.day, 
+          9, // 9 AM
+          0
+        );
+
+        // Only schedule if the time is in the future
+        if (scheduledTime.isAfter(tz.TZDateTime.now(tz.local))) {
+           await _notificationsPlugin.zonedSchedule(
+            baseId + days, // Unique ID for each day
+            'Expiry Alert',
+            '${product.name} is expiring soon in $days days.',
+            scheduledTime,
+            const NotificationDetails(
+              android: AndroidNotificationDetails(
+                'expiry_reminders_channel',
+                'Expiry Reminders',
+                channelDescription: 'Daily 7-day countdown for expiring products',
+                importance: Importance.high,
+                priority: Priority.high,
+              ),
+              iOS: DarwinNotificationDetails(
+                presentAlert: true,
+                presentBadge: true,
+                presentSound: true,
+              ),
+            ),
+            androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+            uiLocalNotificationDateInterpretation:
+                UILocalNotificationDateInterpretation.absoluteTime,
+          );
+        }
+    }
   }
 
   // Cancel a scheduled notification

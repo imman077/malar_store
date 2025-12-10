@@ -64,7 +64,7 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   // Store Name
                   Text(
-                    locale == 'ta' ? 'மலர் ஸ்டோர்' : 'Malar Stores',
+                    locale == 'ta' ? 'மலர்' : 'Malar',
                     style: GoogleFonts.hindMadurai(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,

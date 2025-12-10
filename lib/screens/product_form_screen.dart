@@ -41,11 +41,20 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
   Future<void> _selectDate() async {
     final state = ref.read(productFormProvider);
+    final now = DateTime.now();
+    final tomorrow = now.add(const Duration(days: 1));
+    
+    var initialDate = state.expiryDate ?? now.add(const Duration(days: 30));
+    // Ensure initialDate is not before firstDate (tomorrow)
+    if (initialDate.isBefore(tomorrow)) {
+      initialDate = tomorrow;
+    }
+
     final picked = await showDatePicker(
       context: context,
-      initialDate: state.expiryDate ?? DateTime.now().add(const Duration(days: 30)),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 3650)),
+      initialDate: initialDate,
+      firstDate: tomorrow,
+      lastDate: now.add(const Duration(days: 3650)),
     );
     if (picked != null) {
       ref.read(productFormProvider.notifier).updateExpiryDate(picked);
@@ -73,6 +82,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     if (widget.product == null) {
       ref.read(storeProvider.notifier).addProduct(product);
       
+      // Schedule expiry reminders
+      NotificationService.scheduleExpiryReminders(product);
+      
       // Mobile notification
       final notificationTitle = t('productAdded');
       final notificationBody = product.name;
@@ -94,6 +106,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       );
     } else {
       ref.read(storeProvider.notifier).updateProduct(product);
+      
+      // Schedule expiry reminders
+      NotificationService.scheduleExpiryReminders(product);
       
       // Mobile notification
       final notificationTitle = t('productUpdated');
@@ -243,8 +258,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                   }
                 }
                 
-                // Return stored value if not found
-                return state.category.isNotEmpty ? state.category : null;
+                // Return stored value if not found, ONLY if it exists in the list (this shouldn't happen usually)
+                // But to be safe against crashes:
+                return null;
               }(),
               
               decoration: InputDecoration(

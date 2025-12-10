@@ -173,6 +173,8 @@ class _ShopScreenState extends ConsumerState<ShopScreen> with SingleTickerProvid
           bottom: TabBar(
             isScrollable: true,
             indicatorColor: Colors.white,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white.withOpacity(0.6),
             labelStyle: const TextStyle(fontWeight: FontWeight.bold),
             tabs: [
               const Tab(text: 'All'), // General tab
@@ -215,7 +217,26 @@ class _ShopScreenState extends ConsumerState<ShopScreen> with SingleTickerProvid
       if (categoryId != null) {
           // Find category object to get names
           final cat = ref.read(categoryProvider).firstWhere((c) => c.id == categoryId);
-          products = allProducts.where((p) => p.category == cat.nameEn || p.category == cat.nameTa).toList();
+          
+          final isOther = cat.nameEn == 'Other' || cat.nameTa == 'மற்றவை';
+
+          if (isOther) {
+             // Show products that are NOT in standard categories (excluding current "Other")
+             // actually we just check if it matches any standard category name, if NOT then it's Other
+             products = allProducts.where((p) {
+                 final isStandard = ProductCategories.categories.contains(p.category) || 
+                                    ProductCategories.categoriesTamil.contains(p.category);
+                 
+                 // If it is standard but NOT "Other", then it belongs to that specific tab, not here.
+                 // "Other" is a standard category string, but if user saved "Other", it goes here.
+                 // If user saved "Soap" (custom), isStandard is false, so it goes here.
+                 
+                 if (p.category == 'Other' || p.category == 'மற்றவை') return true;
+                 return !isStandard; 
+             }).toList();
+          } else {
+             products = allProducts.where((p) => p.category == cat.nameEn || p.category == cat.nameTa).toList();
+          }
       }
       
       if (products.isEmpty) {

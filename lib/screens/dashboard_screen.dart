@@ -197,12 +197,16 @@ class DashboardScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  t('recentItems'),
-                  style: GoogleFonts.hindMadurai(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.black,
+                Expanded(
+                  child: Text(
+                    t('recentItems'),
+                    style: GoogleFonts.hindMadurai(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.black,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 if (products.length > 5)
@@ -214,6 +218,8 @@ class DashboardScreen extends ConsumerWidget {
                     },
                     child: Text(
                       t('all'),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w600,
