@@ -7,6 +7,7 @@ class CreditFormState {
   final String totalAmount;
   final String amountPaid;
   final String paymentInput; // For "Add Payment" dialog
+  final String itemInput; // For "Items Purchased" chip input
 
   CreditFormState({
     this.customerName = '',
@@ -15,6 +16,7 @@ class CreditFormState {
     this.totalAmount = '',
     this.amountPaid = '0',
     this.paymentInput = '',
+    this.itemInput = '',
   });
 
   CreditFormState copyWith({
@@ -24,6 +26,7 @@ class CreditFormState {
     String? totalAmount,
     String? amountPaid,
     String? paymentInput,
+    String? itemInput,
   }) {
     return CreditFormState(
       customerName: customerName ?? this.customerName,
@@ -32,6 +35,7 @@ class CreditFormState {
       totalAmount: totalAmount ?? this.totalAmount,
       amountPaid: amountPaid ?? this.amountPaid,
       paymentInput: paymentInput ?? this.paymentInput,
+      itemInput: itemInput ?? this.itemInput,
     );
   }
 }
@@ -61,6 +65,10 @@ class CreditFormNotifier extends StateNotifier<CreditFormState> {
 
   void updatePaymentInput(String value) {
     state = state.copyWith(paymentInput: value);
+  }
+
+  void updateItemInput(String value) {
+    state = state.copyWith(itemInput: value);
   }
 
   void reset() {

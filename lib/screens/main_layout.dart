@@ -19,6 +19,7 @@ import 'product_form_screen.dart';
 import 'credit_manager_screen.dart';
 import 'profile_screen.dart';
 import 'notifications_screen.dart';
+import '../widgets/add_credit_dialog.dart';
 
 import '../providers/app_provider.dart';
 
@@ -288,155 +289,10 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
   void _showAddCreditDialog(BuildContext context, WidgetRef ref) {
     final locale = ref.read(languageProvider);
     String t(String key) => TranslationService.translate(key, locale);
-
-    // Reset form state
-    ref.read(creditFormProvider.notifier).reset();
-
-    final formKey = GlobalKey<FormState>();
-
+    
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(t('addCredit')),
-        content: Consumer(
-          builder: (context, ref, child) {
-            final formState = ref.watch(creditFormProvider);
-            final notifier = ref.read(creditFormProvider.notifier);
-
-            return SingleChildScrollView(
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextFormField(
-                      initialValue: formState.customerName,
-                      onChanged: notifier.updateCustomerName,
-                      decoration: InputDecoration(
-                        labelText: t('customerName'),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      validator: (val) => (val == null || val.isEmpty) ? "${t('customerName')} ${t('required')}" : null,
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      initialValue: formState.phoneNumber,
-                      onChanged: notifier.updatePhoneNumber,
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        labelText: t('phoneNumber'),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      validator: (val) {
-                        if (val != null && val.isNotEmpty && !RegExp(r'^[0-9]{10}$').hasMatch(val)) {
-                          return 'Enter valid 10-digit number';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      initialValue: formState.items,
-                      onChanged: notifier.updateItems,
-                      maxLines: 2,
-                      decoration: InputDecoration(
-                        labelText: t('itemsPurchased'),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      validator: (val) => (val == null || val.isEmpty) ? "${t('itemsPurchased')} ${t('required')}" : null,
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      initialValue: formState.totalAmount,
-                      onChanged: notifier.updateTotalAmount,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: t('totalAmount'),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      validator: (val) {
-                        if (val == null || val.isEmpty) return "${t('totalAmount')} ${t('required')}";
-                        final amount = double.tryParse(val);
-                        if (amount == null || amount <= 0) return 'Enter valid amount > 0';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      initialValue: formState.amountPaid,
-                      onChanged: notifier.updateAmountPaid,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: t('amountPaid'),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      validator: (val) {
-                        if (val == null || val.isEmpty) return "${t('amountPaid')} ${t('required')}";
-                        final amount = double.tryParse(val);
-                        if (amount == null || amount < 0) return 'Enter valid amount >= 0';
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(t('cancel'))),
-          Consumer(
-            builder: (context, ref, child) {
-              return TextButton(
-                onPressed: () {
-                  if (!formKey.currentState!.validate()) return;
-                  
-                  final formState = ref.read(creditFormProvider);
-
-                  final totalAmount = double.tryParse(formState.totalAmount) ?? 0.0;
-                  final amountPaid = double.tryParse(formState.amountPaid) ?? 0.0;
-
-                  final credit = CreditNote(
-                    id: Helpers.generateId(),
-                    customerName: formState.customerName,
-                    phoneNumber: formState.phoneNumber,
-                    items: formState.items,
-                    totalAmount: totalAmount,
-                    amountPaid: amountPaid,
-                    isPaid: amountPaid >= totalAmount,
-                    date: Helpers.formatDateForStorage(DateTime.now()),
-                  );
-
-                  ref.read(storeProvider.notifier).addCredit(credit);
-                  
-                  // Mobile notification
-                  final notificationTitle = t('creditAdded');
-                  final notificationBody = '${credit.customerName} - ${Helpers.formatCurrency(credit.totalAmount)}';
-                  NotificationService.showNotification(
-                    id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-                    title: notificationTitle,
-                    body: notificationBody,
-                  );
-                  
-                  // Add to notification history
-                  ref.read(notificationProvider.notifier).addNotification(
-                    AppNotification(
-                      id: Helpers.generateId(),
-                      title: notificationTitle,
-                      body: notificationBody,
-                      timestamp: DateTime.now(),
-                      type: 'credit_add',
-                    ),
-                  );
-                  
-                  Navigator.pop(dialogContext);
-                },
-                child: Text(t('save')),
-              );
-            },
-          ),
-        ],
-      ),
+      builder: (context) => AddCreditDialog(t: t),
     );
   }
 }

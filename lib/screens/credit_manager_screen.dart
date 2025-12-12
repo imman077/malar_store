@@ -21,6 +21,8 @@ import '../services/translation_service.dart';
 import '../utils/constants.dart';
 import '../utils/helpers.dart';
 import '../widgets/credit_card.dart';
+import '../widgets/add_credit_dialog.dart';
+import '../widgets/receipt_card.dart';
 
 class CreditManagerScreen extends ConsumerStatefulWidget {
   const CreditManagerScreen({super.key});
@@ -214,9 +216,9 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
                           fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 20),
                   Image.asset(
-                    'assets/images/qr_code.png',
-                    width: 500,
-                    height: 500,
+                    'assets/images/store_qr_code.jpg',
+                    width: 450,
+                    height: 450,
                   ),
                 ],
               ),
@@ -310,227 +312,12 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
   // ---------------------------------------------------------
   // RECEIPT CONTENT UI (ENHANCED)
   // ---------------------------------------------------------
+  // ---------------------------------------------------------
+  // RECEIPT CONTENT UI (ENHANCED)
+  // ---------------------------------------------------------
   Widget _buildReceiptContent(
       CreditNote credit, String Function(String) t) {
-    DateTime? parsed = Helpers.parseDate(credit.date);
-    String dateStr = parsed == null
-        ? credit.date
-        : "${parsed.day}-${parsed.month}-${parsed.year}";
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.white, Color(0xFFF8F9FA)],
-          ),
-          border: Border.all(
-            color: Colors.grey[300]!,
-            width: 1,
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Center(
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    t('receipt').toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  dateStr,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Customer Details Section
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[200]!),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  t('customerName'),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  credit.customerName,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.black,
-                  ),
-                ),
-                if (credit.phoneNumber.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Icon(LucideIcons.phone, size: 16, color: Colors.grey[600]),
-                      const SizedBox(width: 8),
-                      Text(
-                        credit.phoneNumber,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // Items Section
-          Text(
-            t('itemsPurchased'),
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: AppColors.black,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey[200]!),
-            ),
-            child: Text(
-              credit.items,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[800],
-                height: 1.5,
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 24),
-          
-          // Divider
-          Container(
-            height: 1,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.transparent, Colors.grey[300]!, Colors.transparent],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Payment Summary
-          _receiptRow(
-            t('totalAmount'),
-            Helpers.formatCurrency(credit.totalAmount),
-            fontSize: 15,
-          ),
-          const SizedBox(height: 8),
-          _receiptRow(
-            t('paid'),
-            Helpers.formatCurrency(credit.amountPaid),
-            color: AppColors.primary,
-            fontSize: 15,
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: credit.pendingAmount > 0 
-                  ? const Color(0xFFFFF3F3) 
-                  : const Color(0xFFF0F9FF),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: credit.pendingAmount > 0 
-                    ? const Color(0xFFFFE0E0) 
-                    : const Color(0xFFD0E7FF),
-              ),
-            ),
-            child: _receiptRow(
-              t('pending'),
-              Helpers.formatCurrency(credit.pendingAmount),
-              color: credit.pendingAmount > 0 ? const Color(0xFFDC2626) : AppColors.primary,
-              bold: true,
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-      ),
-    );
-  }
-
-  Widget _receiptRow(String label, String value,
-      {bool bold = false, Color? color, double fontSize = 14}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: fontSize,
-            color: Colors.grey[700],
-            fontWeight: bold ? FontWeight.w600 : FontWeight.normal,
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: fontSize,
-            color: color ?? Colors.black,
-            fontWeight: bold ? FontWeight.bold : FontWeight.w600,
-          ),
-        ),
-      ],
-    );
+    return ReceiptCard(credit: credit, t: t);
   }
 
   // ---------------------------------------------------------
@@ -563,167 +350,46 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
   }
 
 
-  // ---------------------------------------------------------
-  // ADD CREDIT DIALOG (Same as your version)
-  // ---------------------------------------------------------
-  void _showAddCreditDialog(
-      BuildContext context, String locale, String Function(String) t) {
-    // Reset form state
-    ref.read(creditFormProvider.notifier).reset();
-    
-    final formKey = GlobalKey<FormState>();
+// ---------------------------------------------------------
+// ADD CREDIT DIALOG
+// ---------------------------------------------------------
+void _showAddCreditDialog(
+    BuildContext context, String locale, String Function(String) t) {
+  showDialog(
+    context: context,
+    builder: (context) => AddCreditDialog(t: t),
+  );
+}
 
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(t('addCredit')),
-        content: Consumer(
-          builder: (context, ref, child) {
-            final formState = ref.watch(creditFormProvider);
-            final notifier = ref.read(creditFormProvider.notifier);
-            
-            return SingleChildScrollView(
-              child: Form(
-                key: formKey,
-                child: Column(
-                  children: [
-                    _field(
-                      initialValue: formState.customerName,
-                      onChanged: notifier.updateCustomerName,
-                      label: t('customerName'),
-                    ),
-                    const SizedBox(height: 10),
-                    _field(
-                      initialValue: formState.phoneNumber,
-                      onChanged: notifier.updatePhoneNumber,
-                      label: t('phoneNumber'),
-                      keyboard: TextInputType.phone, 
-                      required: false,
-                      validator: (val) {
-                        if (val != null && val.isNotEmpty && !RegExp(r'^[0-9]{10}$').hasMatch(val)) {
-                          return 'Enter valid 10-digit number';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    _field(
-                      initialValue: formState.items,
-                      onChanged: notifier.updateItems,
-                      label: t('itemsPurchased'), 
-                      maxLines: 2
-                    ),
-                    const SizedBox(height: 10),
-                    _field(
-                      initialValue: formState.totalAmount,
-                      onChanged: notifier.updateTotalAmount,
-                      label: t('totalAmount'),
-                      keyboard: TextInputType.number,
-                      validator: (val) {
-                        if (val == null || val.isEmpty) return "Required";
-                        final amount = double.tryParse(val);
-                        if (amount == null || amount <= 0) return 'Enter valid amount > 0';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    _field(
-                      initialValue: formState.amountPaid,
-                      onChanged: notifier.updateAmountPaid,
-                      label: t('amountPaid'),
-                      keyboard: TextInputType.number,
-                      validator: (val) {
-                        if (val == null || val.isEmpty) return "Required";
-                        final amount = double.tryParse(val);
-                        if (amount == null || amount < 0) return 'Enter valid amount >= 0';
-                        final total = double.tryParse(formState.totalAmount) ?? 0.0;
-                        if (amount > total) return 'Cannot exceed total amount';
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(t('cancel'))),
-          Consumer(
-            builder: (context, ref, child) {
-              return TextButton(
-                onPressed: () {
-                  if (!formKey.currentState!.validate()) return;
-                  
-                  final formState = ref.read(creditFormProvider);
-                  final totalAmount = double.tryParse(formState.totalAmount) ?? 0.0;
-                  final amountPaid = double.tryParse(formState.amountPaid) ?? 0.0;
 
-                  final credit = CreditNote(
-                    id: Helpers.generateId(),
-                    customerName: formState.customerName,
-                    phoneNumber: formState.phoneNumber,
-                    items: formState.items,
-                    totalAmount: totalAmount,
-                    amountPaid: amountPaid,
-                    isPaid: amountPaid >= totalAmount,
-                    date: Helpers.formatDateForStorage(DateTime.now()),
-                  );
+Widget _field({
+  required String initialValue,
+  required ValueChanged<String> onChanged,
+  required String label,
+  int maxLines = 1,
+  TextInputType? keyboard,
+  bool required = true,
+  String? Function(String?)? validator,
+}) {
+  return TextFormField(
+    initialValue: initialValue,
+    onChanged: onChanged,
+    maxLines: maxLines,
+    keyboardType: keyboard,
+    decoration: InputDecoration(
+      labelText: label,
+      border: const OutlineInputBorder(),
+    ),
+    validator: validator ?? (v) {
+      if (required && (v == null || v.trim().isEmpty)) {
+        return "Required";
+      }
+      return null;
+    },
+  );
+}
 
-                  ref.read(storeProvider.notifier).addCredit(credit);
-                  
-                  // Mobile notification
-                  final notificationTitle = t('creditAdded');
-                  final notificationBody = '${credit.customerName} - ${Helpers.formatCurrency(credit.totalAmount)}';
-                  NotificationService.showNotification(
-                    id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-                    title: notificationTitle,
-                    body: notificationBody,
-                  );
-                  
-                  // Add to notification history
-                  ref.read(notificationProvider.notifier).addNotification(
-                    AppNotification(
-                      id: Helpers.generateId(),
-                      title: notificationTitle,
-                      body: notificationBody,
-                      timestamp: DateTime.now(),
-                      type: 'credit_add',
-                    ),
-                  );
-                  
-                  Navigator.pop(dialogContext);
-                },
-                child: Text(t('save')),
-              );
-            },
-          )
-        ],
-      ),
-    );
-  }
 
-  Widget _field({
-    required String initialValue,
-    required ValueChanged<String> onChanged,
-    required String label,
-    int maxLines = 1,
-    TextInputType? keyboard,
-    bool required = true,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      initialValue: initialValue,
-      onChanged: onChanged,
-      maxLines: maxLines,
-      keyboardType: keyboard,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-      ),
-      validator: validator ?? (v) => required && (v == null || v.isEmpty) ? "Required" : null,
-    );
-  }
 
   // ---------------------------------------------------------
   // EDIT PAYMENT DIALOG (kept minimal)
@@ -743,18 +409,56 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
           builder: (context, ref, child) {
             return Form(
               key: key,
-              child: TextFormField(
-                initialValue: ref.watch(creditFormProvider).paymentInput,
-                onChanged: ref.read(creditFormProvider.notifier).updatePaymentInput,
-                decoration: InputDecoration(labelText: t('amountPaid')),
-                keyboardType: TextInputType.number,
-                validator: (v) {
-                  if (v == null || v.isEmpty) return t('required');
-                  final amount = double.tryParse(v);
-                  if (amount == null || amount <= 0) return 'Enter valid amount > 0';
-                  if (amount > credit.pendingAmount) return 'Cannot exceed pending amount';
-                  return null;
-                },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          t('pending'),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        Text(
+                          Helpers.formatCurrency(credit.pendingAmount),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextFormField(
+                    initialValue: ref.watch(creditFormProvider).paymentInput,
+                    onChanged: ref.read(creditFormProvider.notifier).updatePaymentInput,
+                    decoration: InputDecoration(
+                      labelText: t('amountPaid'),
+                      border: const OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (v) {
+                      if (v == null || v.isEmpty) return t('required');
+                      final amount = double.tryParse(v);
+                      if (amount == null || amount <= 0) return 'Enter valid amount > 0';
+                      if (amount > credit.pendingAmount) return 'Cannot exceed pending amount';
+                      return null;
+                    },
+                  ),
+                ],
               ),
             );
           },
@@ -763,11 +467,18 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
           TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(t('cancel'))),
           Consumer(
             builder: (context, ref, child) {
+              final paymentInput = ref.watch(creditFormProvider).paymentInput;
+              
+              bool isValid = true;
+              final amount = double.tryParse(paymentInput);
+              
+              if (amount == null || amount <= 0) isValid = false;
+              if (amount != null && amount > credit.pendingAmount) isValid = false;
+
               return TextButton(
-                onPressed: () {
+                onPressed: isValid ? () {
                   if (!key.currentState!.validate()) return;
                   
-                  final paymentInput = ref.read(creditFormProvider).paymentInput;
                   final added = double.tryParse(paymentInput) ?? 0.0;
                   
                   final updated = credit.copyWith(
@@ -800,8 +511,13 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
                       type: 'credit_edit',
                     ),
                   );
-                },
-                child: Text(t('save')),
+                } : null,
+                child: Text(
+                  t('save'),
+                  style: TextStyle(
+                    color: isValid ? AppColors.primary : Colors.grey,
+                  ),
+                ),
               );
             },
           ),

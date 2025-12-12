@@ -79,6 +79,13 @@ class TranslationService {
       'markAllRead': 'Mark all as read',
       'markAsPaid': 'Mark as Paid',
       'clearAll': 'Clear all',
+      'customerNameRequired': 'Customer Name Required',
+      'itemsPurchasedRequired': 'Items Purchased Required',
+      'invalidPhone': 'Enter valid 10-digit number',
+      'validAmount': 'Enter valid amount > 0',
+'validPositiveAmount': 'Enter valid amount >= 0',
+'amountExceedsTotal': 'Amount paid cannot exceed total amount',
+      'enterTotalFirst': 'Enter Total Amount first',
     },
     'ta': {
       'name': 'மலர்',
@@ -159,6 +166,13 @@ class TranslationService {
       'markAllRead': 'அனைத்தையும் படித்ததாக குறி',
       'markAsPaid': 'கடன் முடி',
       'clearAll': 'அனைத்தையும் அழி',
+      "customerNameRequired": "வாடிக்கையாளர் பெயர் அவசியம்",
+      "itemsPurchasedRequired": "வாங்கிய பொருட்கள் அவசியம்",
+      "invalidPhone": "சரியான 10 இலக்க எண்ணை உள்ளிடவும்",
+      "validAmount": "0-ஐ விட அதிகமான சரியான தொகையை உள்ளிடவும்",
+      "validPositiveAmount": "0 அல்லது அதற்கு மேற்பட்ட சரியான தொகையை உள்ளிடவும்",
+  "amountExceedsTotal": "செலுத்திய தொகை மொத்த தொகையை மீறக்கூடாது",
+      "enterTotalFirst": "முதலில் மொத்த தொகையை உள்ளிடவும்"
     },
   };
 
