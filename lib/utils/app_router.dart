@@ -9,6 +9,8 @@ import '../screens/barcode_scanner_screen.dart';
 import '../screens/category_manager_screen.dart';
 import '../screens/shop_screen.dart';
 import '../screens/cart_screen.dart';
+import '../screens/weight_liquid_calculator_screen.dart';
+import '../screens/discount_calculator_screen.dart';
 import '../models/product.dart';
 
 class AppRouter {
@@ -24,6 +26,8 @@ class AppRouter {
   static const String categories = '/categories';
   static const String shop = '/shop';
   static const String cart = '/cart';
+  static const String weightLiquidCalculator = '/weight-liquid-calculator';
+  static const String discountCalculator = '/discount-calculator';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -96,6 +100,18 @@ class AppRouter {
           builder: (_) => const CartScreen(),
         );
 
+      case weightLiquidCalculator:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const WeightLiquidCalculatorScreen(),
+        );
+
+      case discountCalculator:
+        return MaterialPageRoute(
+          settings: settings,
+          builder: (_) => const DiscountCalculatorScreen(),
+        );
+
       default:
         return MaterialPageRoute(
           settings: settings,
@@ -142,4 +158,10 @@ class AppRouter {
 
   static void navigateToCart(BuildContext context) =>
       Navigator.pushNamed(context, cart);
+
+  static void navigateToWeightLiquidCalculator(BuildContext context) =>
+      Navigator.pushNamed(context, weightLiquidCalculator);
+
+  static void navigateToDiscountCalculator(BuildContext context) =>
+      Navigator.pushNamed(context, discountCalculator);
 }

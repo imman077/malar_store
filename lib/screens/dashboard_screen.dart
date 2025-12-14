@@ -168,6 +168,27 @@ class DashboardScreen extends ConsumerWidget {
                     },
                   ),
                   const SizedBox(width: 12),
+                   _buildQuickActionButton(
+                    context,
+                    icon: LucideIcons.users,
+                    label: t('credits'),
+                    color: AppColors.red,
+                    onTap: () {
+                      ref.read(navigationProvider.notifier).setIndex(3);
+                    },
+                  ),
+                  
+                  const SizedBox(width: 12),
+                  _buildQuickActionButton(
+                    context,
+                    icon: LucideIcons.calculator,
+                    label: t('weightLiquidCalculator'),
+                    color: AppColors.orange,
+                    onTap: () {
+                      AppRouter.navigateToWeightLiquidCalculator(context);
+                    },
+                  ),
+                  const SizedBox(width: 12),
                   // _buildQuickActionButton(
                   //   context,
                   //   icon: LucideIcons.scan,
@@ -177,16 +198,17 @@ class DashboardScreen extends ConsumerWidget {
                   //     // Scan functionality
                   //   },
                   // ),
-                  const SizedBox(width: 12),
                   _buildQuickActionButton(
                     context,
-                    icon: LucideIcons.users,
-                    label: t('credits'),
-                    color: AppColors.red,
+                    icon: LucideIcons.percent,
+                    label: t('discountCalculator'),
+                    color: const Color(0xFF2563EB), // Blue
                     onTap: () {
-                      ref.read(navigationProvider.notifier).setIndex(3);
+                      AppRouter.navigateToDiscountCalculator(context);
                     },
                   ),
+                  const SizedBox(width: 12),
+                 
                 ],
               ),
             ),

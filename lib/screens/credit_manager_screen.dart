@@ -339,12 +339,15 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
   Future<void> _shareReceipt(GlobalKey key) async {
     final Uint8List bytes = await _captureReceipt(key);
 
-    final dir = await getTemporaryDirectory();
-    final file = File("${dir.path}/receipt.png");
-    await file.writeAsBytes(bytes);
+    // Use XFile.fromData which works on Web, Android, and iOS
+    final xFile = XFile.fromData(
+      bytes,
+      mimeType: 'image/png',
+      name: 'receipt.png',
+    );
 
     await Share.shareXFiles(
-      [XFile(file.path)],
+      [xFile],
       text: "Receipt",
     );
   }
