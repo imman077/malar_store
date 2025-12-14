@@ -48,7 +48,7 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.white,
       body: Column(
         children: [
           _buildFilterTabs(t),
@@ -95,14 +95,13 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
                     ),
                   ),
           ),
-        ],
+      ],
       ),
-
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () => _showAddCreditDialog(context, locale, t),
-      //   backgroundColor: AppColors.primary,
-      //   child: const Icon(LucideIcons.plus, color: Colors.white),
-      // ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddCreditDialog(context, locale, t),
+        backgroundColor: AppColors.primary,
+        child: const Icon(LucideIcons.plus, color: Colors.white),
+      ),
     );
   }
 

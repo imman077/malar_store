@@ -22,12 +22,32 @@ class ImagePickerWidget extends StatefulWidget {
 
 class _ImagePickerWidgetState extends State<ImagePickerWidget> {
   String? _imageBase64;
+  Uint8List? _cachedImageBytes; // Cache decoded image
   final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
     _imageBase64 = widget.initialBase64;
+    _updateCachedImage();
+  }
+
+  @override
+  void didUpdateWidget(ImagePickerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Only update if the base64 actually changed
+    if (widget.initialBase64 != oldWidget.initialBase64) {
+      _imageBase64 = widget.initialBase64;
+      _updateCachedImage();
+    }
+  }
+
+  void _updateCachedImage() {
+    if (_imageBase64 != null) {
+      _cachedImageBytes = Helpers.decodeBase64ToImage(_imageBase64);
+    } else {
+      _cachedImageBytes = null;
+    }
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -44,6 +64,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
         final base64String = Helpers.encodeImageToBase64(bytes);
         setState(() {
           _imageBase64 = base64String;
+          _cachedImageBytes = bytes; // Use the bytes directly
         });
         widget.onImageSelected(base64String);
       }
@@ -82,12 +103,82 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
     );
   }
 
+  void _showFullImageDialog(Uint8List imageBytes) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(16),
+        child: Stack(
+          children: [
+            // Full screen image with pinch to zoom
+            Center(
+              child: InteractiveViewer(
+                panEnabled: true,
+                minScale: 0.5,
+                maxScale: 4.0,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.memory(
+                    imageBytes,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+            // Close button
+            Positioned(
+              top: 8,
+              right: 8,
+              child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+              ),
+            ),
+            // Change image button
+            Positioned(
+              bottom: 16,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _showImageSourceDialog();
+                  },
+                  icon: const Icon(Icons.camera_alt),
+                  label: const Text('Change Image'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final Uint8List? imageBytes = Helpers.decodeBase64ToImage(_imageBase64);
-
+    // Use cached bytes instead of decoding every time
     return GestureDetector(
-      onTap: _showImageSourceDialog,
+      onTap: _cachedImageBytes != null ? () => _showFullImageDialog(_cachedImageBytes!) : _showImageSourceDialog,
+      onLongPress: _showImageSourceDialog,
       child: Container(
         height: 200,
         width: double.infinity,
@@ -96,13 +187,48 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.gray.withOpacity(0.3)),
         ),
-        child: imageBytes != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.memory(
-                  imageBytes,
-                  fit: BoxFit.cover,
-                ),
+        child: _cachedImageBytes != null
+            ? Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 200,
+                      child: Image.memory(
+                        _cachedImageBytes!,
+                        fit: BoxFit.contain,
+                        gaplessPlayback: true, // Prevents flicker
+                      ),
+                    ),
+                  ),
+                  // Hint overlay
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.touch_app, color: Colors.white, size: 14),
+                          SizedBox(width: 4),
+                          Text(
+                            'Tap to view',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,

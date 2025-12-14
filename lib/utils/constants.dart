@@ -47,6 +47,24 @@ class DateFormats {
   static const String storage = 'yyyy-MM-dd';
 }
 
+// App Spacing - Standardized padding/margin
+class AppSpacing {
+  static const double screenPadding = 16.0; // Standard screen padding
+  static const double cardPadding = 12.0; // Padding inside cards
+  static const double sectionSpacing = 16.0; // Space between sections
+  static const double itemSpacing = 12.0; // Space between items
+  static const double smallSpacing = 8.0; // Small gaps
+}
+
+// App Border Radius - Professional, subtle rounding
+class AppRadius {
+  static const double card = 8.0; // Cards
+  static const double dialog = 12.0; // Dialogs/Modals
+  static const double button = 8.0; // Buttons
+  static const double input = 8.0; // Input fields
+  static const double chip = 20.0; // Filter chips/pills
+}
+
 // Expiry Status
 enum ExpiryStatus {
   expired,

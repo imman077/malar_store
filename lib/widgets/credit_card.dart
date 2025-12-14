@@ -33,15 +33,8 @@ class CreditCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16), // Increased margin
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.lightGray, width: 1), // Added border
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: AppColors.lightGray, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -6,8 +6,9 @@ class Product {
   final String name;
   final String category;
   final double price;
-  final int quantity;
-  final String unit; // 'kg' or 'g' or 'Qty'
+  final int quantity; // Weight/volume value (e.g., 250, 500, 1)
+  final String unit; // 'kg' or 'g' or 'pcs'
+  final int count; // Number of items/packets (e.g., 5 packets)
   final String expiryDate; // YYYY-MM-DD format
   final String? imageBase64;
 
@@ -18,6 +19,7 @@ class Product {
     required this.price,
     required this.quantity,
     this.unit = 'kg', // Default to kg
+    this.count = 1, // Default to 1 item
     required this.expiryDate,
     this.imageBase64,
   });
@@ -43,6 +45,7 @@ class Product {
       'price': price,
       'quantity': quantity,
       'unit': unit,
+      'count': count,
       'expiryDate': expiryDate,
       'imageBase64': imageBase64,
     };
@@ -57,6 +60,7 @@ class Product {
       price: (json['price'] as num).toDouble(),
       quantity: json['quantity'] as int,
       unit: json['unit'] as String? ?? 'kg',
+      count: json['count'] as int? ?? 1, // Default to 1 for backward compatibility
       expiryDate: json['expiryDate'] as String,
       imageBase64: json['imageBase64'] as String?,
     );
@@ -70,6 +74,7 @@ class Product {
     double? price,
     int? quantity,
     String? unit,
+    int? count,
     String? expiryDate,
     String? imageBase64,
   }) {
@@ -80,6 +85,7 @@ class Product {
       price: price ?? this.price,
       quantity: quantity ?? this.quantity,
       unit: unit ?? this.unit,
+      count: count ?? this.count,
       expiryDate: expiryDate ?? this.expiryDate,
       imageBase64: imageBase64 ?? this.imageBase64,
     );

@@ -43,6 +43,10 @@ class DashboardScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Greeting Section
+            _buildGreetingSection(context, t),
+            const SizedBox(height: 16),
+            
             // Alert Banner
             if (hasAlerts)
               Container(
@@ -277,6 +281,92 @@ class DashboardScreen extends ConsumerWidget {
                   )),
           ],
         ),
+      ),
+    );
+  }
+
+  String _getGreetingKey() {
+    final hour = DateTime.now().hour;
+    if (hour >= 5 && hour < 12) {
+      return 'goodMorning';
+    } else if (hour >= 12 && hour < 17) {
+      return 'goodAfternoon';
+    } else {
+      return 'goodEvening';
+    }
+  }
+
+  IconData _getGreetingIcon() {
+    final hour = DateTime.now().hour;
+    if (hour >= 5 && hour < 12) {
+      return LucideIcons.sunrise;
+    } else if (hour >= 12 && hour < 17) {
+      return LucideIcons.sun;
+    } else {
+      return LucideIcons.sunset;
+    }
+  }
+
+  Color _getGreetingColor() {
+    final hour = DateTime.now().hour;
+    if (hour >= 5 && hour < 12) {
+      return const Color(0xFF10B981); // Emerald green for morning
+    } else if (hour >= 12 && hour < 17) {
+      return const Color(0xFF059669); // Primary green for afternoon (matches app theme)
+    } else {
+      return const Color(0xFF047857); // Dark green for evening
+    }
+  }
+
+  Widget _buildGreetingSection(BuildContext context, String Function(String) t) {
+    final greetingKey = _getGreetingKey();
+    final greetingIcon = _getGreetingIcon();
+    final greetingColor = _getGreetingColor();
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: greetingColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              greetingIcon,
+              color: AppColors.white,
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                t(greetingKey),
+                style: GoogleFonts.hindMadurai(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.white,
+                ),
+              ),
+              Text(
+                t('welcomeMessage'),
+                style: GoogleFonts.hindMadurai(
+                  fontSize: 13,
+                  color: AppColors.white.withOpacity(0.9),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -14,6 +14,7 @@ import '../utils/helpers.dart';
 import '../utils/app_router.dart';
 import '../widgets/image_picker_widget.dart';
 import '../providers/category_provider.dart';
+import '../models/category.dart';
 
 class ProductFormScreen extends ConsumerStatefulWidget {
   final Product? product;
@@ -71,11 +72,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final product = notifier.getProduct();
 
     if (product == null) {
-       if (ref.read(productFormProvider).category.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t('category') + ' required')),
-          );
-       }
        return;
     }
 
@@ -273,7 +269,19 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               ),
               items: () {
                  final cats = ref.watch(categoryProvider);
-                 return cats.map((cat) {
+                 // Sort categories: Other/மற்றவை always last, rest alphabetically
+                 final sortedCats = List<Category>.from(cats);
+                 sortedCats.sort((a, b) {
+                   final aIsOther = a.nameEn == 'Other' || a.nameTa == 'மற்றவை';
+                   final bIsOther = b.nameEn == 'Other' || b.nameTa == 'மற்றவை';
+                   
+                   if (aIsOther && !bIsOther) return 1;
+                   if (!aIsOther && bIsOther) return -1;
+                   
+                   return a.nameEn.compareTo(b.nameEn);
+                 });
+                 
+                 return sortedCats.map((cat) {
                    return DropdownMenuItem<String>(
                      value: cat.nameEn,
                      child: Text(locale == 'ta' ? cat.nameTa : cat.nameEn),
@@ -285,7 +293,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                   notifier.updateCategory(val);
                 }
               },
-              validator: (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 16),
 
@@ -324,15 +331,94 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Quantity & Unit
-            Row(
+            // Quantity, Unit & Count
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  flex: 2,
-                  child: TextFormField(
-                    initialValue: state.quantity,
+                // Unit selector row
+                Row(
+                  children: [
+                    Text(
+                      t('unit') + ':',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.black,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            _unitButton(t('kg'), state.unit == 'kg', () => notifier.updateUnit('kg')),
+                            Container(width: 1, color: Colors.grey),
+                            _unitButton(t('g'), state.unit == 'g', () => notifier.updateUnit('g')),
+                            Container(width: 1, color: Colors.grey),
+                            _unitButton(t('pcs'), state.unit == 'pcs', () => notifier.updateUnit('pcs')),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                
+                // Quantity and Count fields
+                if (state.unit != 'pcs') ...[
+                  // Show both Quantity and Count for kg/g
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          initialValue: state.quantity,
+                          decoration: InputDecoration(
+                            labelText: t('quantity') + ' (${state.unit})',
+                            hintText: locale == 'ta' ? 'எ.கா: 250' : 'e.g: 250',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: AppColors.white,
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: notifier.updateQuantity,
+                          validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextFormField(
+                          initialValue: state.count,
+                          decoration: InputDecoration(
+                            labelText: t('count'),
+                            hintText: locale == 'ta' ? 'எ.கா: 5' : 'e.g: 5',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            filled: true,
+                            fillColor: AppColors.white,
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: notifier.updateCount,
+                          validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  // Show only Count for pieces
+                  TextFormField(
+                    initialValue: state.count,
                     decoration: InputDecoration(
-                      labelText: t('quantity'),
+                      labelText: t('count'),
+                      hintText: locale == 'ta' ? 'எ.கா: 5' : 'e.g: 5',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -340,29 +426,10 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                       fillColor: AppColors.white,
                     ),
                     keyboardType: TextInputType.number,
-                    onChanged: notifier.updateQuantity,
+                    onChanged: notifier.updateCount,
                     validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        _unitButton('Kg', state.unit == 'kg', () => notifier.updateUnit('kg')),
-                        Container(width: 1, color: Colors.grey),
-                        _unitButton('g', state.unit == 'g', () => notifier.updateUnit('g')),
-                      ],
-                    ),
-                  ),
-                ),
+                ],
               ],
             ),
             const SizedBox(height: 16),

@@ -22,7 +22,7 @@ class _WeightLiquidCalculatorScreenState
   final _quantityController = TextEditingController();
 
   bool _isWeightMode = true; // true = Weight, false = Liquid
-  String _selectedUnit = 'kg'; // kg, g, L, ml
+  String _selectedUnit = 'g'; // kg, g, L, ml - default to grams
   double _totalPrice = 0.0;
 
   late AnimationController _animationController;
@@ -81,7 +81,7 @@ class _WeightLiquidCalculatorScreenState
   void _toggleMode() {
     setState(() {
       _isWeightMode = !_isWeightMode;
-      _selectedUnit = _isWeightMode ? 'kg' : 'L';
+      _selectedUnit = _isWeightMode ? 'g' : 'ml'; // Default to smaller units
       _clearAll();
     });
   }

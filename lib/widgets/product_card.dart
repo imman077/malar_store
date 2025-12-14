@@ -70,18 +70,12 @@ class ProductCard extends ConsumerWidget {
     final Uint8List? imageBytes = Helpers.decodeBase64ToImage(product.imageBase64);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: AppSpacing.itemSpacing),
+      padding: const EdgeInsets.all(AppSpacing.cardPadding),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        border: Border.all(color: AppColors.lightGray, width: 1),
       ),
       child: Row(
         children: [
@@ -91,11 +85,11 @@ class ProductCard extends ConsumerWidget {
             height: 60,
             decoration: BoxDecoration(
               color: AppColors.lightGray,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppRadius.button),
             ),
             child: imageBytes != null
                 ? ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppRadius.button),
                     child: Image.memory(
                       imageBytes,
                       fit: BoxFit.cover,
@@ -144,7 +138,9 @@ class ProductCard extends ConsumerWidget {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      '${locale == 'ta' ? 'சரக்கு' : 'Stock'}: ${product.quantity}',
+                      product.unit == 'pcs' 
+                          ? '${product.count} ${locale == 'ta' ? 'எண்' : 'Pcs'}'
+                          : '${product.quantity}${product.unit} × ${product.count}',
                       style: TextStyle(
                         fontSize: 13,
                         color: AppColors.gray,

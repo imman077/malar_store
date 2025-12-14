@@ -198,7 +198,7 @@ class _AddCreditDialogState extends ConsumerState<AddCreditDialog> {
                           initialValue: formState.itemInput,
                           decoration: InputDecoration(
                             labelText: widget.t('itemsPurchased'),
-                            hintText: 'Type item and click add',
+                            hintText: widget.t('typeItemHint'),
                             border: const OutlineInputBorder(),
                           ),
                           onChanged: notifier.updateItemInput,
@@ -216,20 +216,55 @@ class _AddCreditDialogState extends ConsumerState<AddCreditDialog> {
                     ],
                   ),
                   if (formState.items.isNotEmpty) ...[
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
-                      runSpacing: 4,
+                      runSpacing: 8,
                       children: formState.items.split(', ').map((item) {
-                        return Chip(
-                          label: Text(item),
-                          deleteIcon: const Icon(LucideIcons.x, size: 16),
-                          onDeleted: () => _removeItem(item),
-                          backgroundColor: AppColors.primary.withOpacity(0.1),
-                          labelStyle: const TextStyle(color: AppColors.primary),
-                          side: BorderSide.none,
-                          shape: RoundedRectangleBorder(
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColors.primary.withOpacity(0.15),
+                                AppColors.primary.withOpacity(0.08),
+                              ],
+                            ),
                             borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: AppColors.primary.withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                item,
+                                style: const TextStyle(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              InkWell(
+                                onTap: () => _removeItem(item),
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 14,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       }).toList(),

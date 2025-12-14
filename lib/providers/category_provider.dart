@@ -12,7 +12,21 @@ class CategoryNotifier extends StateNotifier<List<Category>> {
   }
 
   void loadCategories() {
-    state = StorageService.getAllCategories();
+    final categories = StorageService.getAllCategories();
+    
+    // Sort categories: Other/மற்றவை always last, rest alphabetically
+    categories.sort((a, b) {
+      final aIsOther = a.nameEn == 'Other' || a.nameTa == 'மற்றவை';
+      final bIsOther = b.nameEn == 'Other' || b.nameTa == 'மற்றவை';
+      
+      if (aIsOther && !bIsOther) return 1; // a (Other) comes after b
+      if (!aIsOther && bIsOther) return -1; // b (Other) comes after a
+      
+      // Both are not Other, sort alphabetically by English name
+      return a.nameEn.compareTo(b.nameEn);
+    });
+    
+    state = categories;
   }
 
   Future<void> addCategory(Category category) async {

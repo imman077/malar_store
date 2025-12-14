@@ -19,6 +19,7 @@ import 'product_form_screen.dart';
 import 'credit_manager_screen.dart';
 import 'profile_screen.dart';
 import 'notifications_screen.dart';
+import 'shop_screen.dart';
 import '../widgets/add_credit_dialog.dart';
 
 import '../providers/app_provider.dart';
@@ -34,7 +35,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
   final List<Widget> _screens = [
     const DashboardScreen(),
     const ProductListScreen(),
-    const SizedBox(), // Placeholder for FAB
+    const ShopScreen(),
     const CreditManagerScreen(),
     const ProfileScreen(),
   ];
@@ -172,25 +173,15 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
           const SizedBox(width: 8),
         ],
       ),
-      body: currentIndex == 2
-          ? const SizedBox()
-          : _screens[currentIndex],
+      body: _screens[currentIndex],
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Context-aware FAB behavior
-          if (currentIndex == 0 || currentIndex == 4) {
-            // Home or Profile - Show choice dialog
-            _showAddChoiceDialog(context, ref);
-          } else if (currentIndex == 1) {
-            // Items tab - Go directly to add product
-            AppRouter.navigateToAddProduct(context);
-          } else if (currentIndex == 3) {
-            // Credits tab - Show add credit dialog
-            _showAddCreditDialog(context, ref);
-          }
+          ref.read(navigationProvider.notifier).setIndex(2); // Set to Shop index
         },
         backgroundColor: AppColors.primary,
-        child: const Icon(LucideIcons.plus, color: AppColors.white),
+        elevation: 4,
+        shape: const CircleBorder(),
+        child: const Icon(LucideIcons.shoppingBag, color: AppColors.white),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
@@ -205,7 +196,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
             children: [
               _buildNavItem(LucideIcons.home, t('dashboard'), 0, currentIndex),
               _buildNavItem(LucideIcons.package, t('items'), 1, currentIndex),
-              const SizedBox(width: 40), // Space for FAB
+              const SizedBox(width: 48), // Space for FAB
               _buildNavItem(LucideIcons.users, t('credits'), 3, currentIndex),
               _buildNavItem(LucideIcons.user, t('profile'), 4, currentIndex),
             ],

@@ -11,8 +11,12 @@ class ProductFormState {
   final String price;
   final String quantity;
   final String unit;
+  final String? _count; // Backing field for count
   final DateTime? expiryDate;
   final String? imageBase64;
+
+  // Safe getter - returns '1' if null (for backward compatibility)
+  String get count => _count ?? '1';
 
   ProductFormState({
     this.id,
@@ -22,9 +26,10 @@ class ProductFormState {
     this.price = '',
     this.quantity = '',
     this.unit = 'kg',
+    String? count = '1',
     this.expiryDate,
     this.imageBase64,
-  });
+  }) : _count = count;
 
   ProductFormState copyWith({
     String? id,
@@ -34,6 +39,7 @@ class ProductFormState {
     String? price,
     String? quantity,
     String? unit,
+    String? count,
     DateTime? expiryDate,
     String? imageBase64,
   }) {
@@ -45,6 +51,7 @@ class ProductFormState {
       price: price ?? this.price,
       quantity: quantity ?? this.quantity,
       unit: unit ?? this.unit,
+      count: count ?? this.count,
       expiryDate: expiryDate ?? this.expiryDate,
       imageBase64: imageBase64 ?? this.imageBase64,
     );
@@ -71,6 +78,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
         price: product.price.toString(),
         quantity: product.quantity.toString(),
         unit: product.unit,
+        count: product.count.toString(),
         expiryDate: Helpers.parseDate(product.expiryDate),
         imageBase64: product.imageBase64,
       );
@@ -85,6 +93,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
   void updatePrice(String value) => state = state.copyWith(price: value);
   void updateQuantity(String value) => state = state.copyWith(quantity: value);
   void updateUnit(String value) => state = state.copyWith(unit: value);
+  void updateCount(String value) => state = state.copyWith(count: value);
   void updateExpiryDate(DateTime? value) => state = state.copyWith(expiryDate: value);
   void updateImage(String? value) => state = state.copyWith(imageBase64: value);
 
@@ -92,16 +101,16 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     state = ProductFormState(
       expiryDate: DateTime.now().add(const Duration(days: 30)),
       unit: 'kg',
+      count: '1',
     );
   }
 
   Product? getProduct() {
-    if (state.category.isEmpty) return null;
     if (state.expiryDate == null) return null;
 
-    // Use custom category if "Other" is selected
+    // Use custom category if "Other" is selected, otherwise use selected category (can be empty)
     final finalCategory = state.category == 'Other' || state.category == 'மற்றவை'
-        ? state.customCategory.isNotEmpty ? state.customCategory : state.category
+        ? state.customCategory.isNotEmpty ? state.customCategory : ''
         : state.category;
 
     return Product(
@@ -111,6 +120,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
       price: double.tryParse(state.price) ?? 0.0,
       quantity: int.tryParse(state.quantity) ?? 0,
       unit: state.unit,
+      count: int.tryParse(state.count) ?? 1,
       expiryDate: Helpers.formatDateForStorage(state.expiryDate!),
       imageBase64: state.imageBase64,
     );
@@ -120,3 +130,4 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 final productFormProvider = StateNotifierProvider.autoDispose<ProductFormNotifier, ProductFormState>((ref) {
   return ProductFormNotifier();
 });
+
