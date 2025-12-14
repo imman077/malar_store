@@ -57,7 +57,7 @@ class TranslationService {
       'price': 'Price',
       'noItems': 'No items found',
       'noCredits': 'No credits found',
-      'pay': 'Scan To Pay',
+      'pay': 'Scan to pay',
       'receipt': 'Receipt',
       'share': 'Share',
       'downloadPDF': 'Download PDF',

@@ -233,8 +233,10 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
             const SizedBox(height: 4),
             Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10,
                 color: isSelected ? AppColors.primary : AppColors.gray,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),

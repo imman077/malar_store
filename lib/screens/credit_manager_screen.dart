@@ -210,15 +210,27 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(t('pay'),
-                  textAlign: TextAlign.center,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1), // light green bg
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.primary),
+                    ),
+                    child: Text(
+                      t('pay'),
                       style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold)),
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   Image.asset(
                     'assets/images/store_qr_code.jpg',
-                    width: 450,
-                    height: 450,
+                    width: 500,
+                    height: 460,
                   ),
                 ],
               ),
@@ -226,9 +238,23 @@ class _CreditManagerScreenState extends ConsumerState<CreditManagerScreen> {
             Positioned(
               right: 16,
               top: 16,
-              child: IconButton(
-                icon: const Icon(Icons.close, size: 30),
-                onPressed: () => Navigator.pop(context),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  icon: const Icon(LucideIcons.x, size: 20),
+                  onPressed: () => Navigator.pop(context),
+                  color: AppColors.black,
+                ),
               ),
             )
           ],

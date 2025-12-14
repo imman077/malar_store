@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -54,7 +55,8 @@ class _AddCreditDialogState extends ConsumerState<AddCreditDialog> {
 
   bool _canSave(CreditFormState formState) {
     if (formState.customerName.trim().isEmpty) return false;
-    if (formState.items.trim().isEmpty) return false;
+    // Check if there are items OR if there's text in the input that can be added
+    if (formState.items.trim().isEmpty && formState.itemInput.trim().isEmpty) return false;
     if (formState.totalAmount.trim().isEmpty) return false;
     if (formState.amountPaid.trim().isEmpty) return false;
 
@@ -74,6 +76,13 @@ class _AddCreditDialogState extends ConsumerState<AddCreditDialog> {
   }
 
   void _handleSave() {
+    // Check for pending item input and add it first
+    final currentState = ref.read(creditFormProvider);
+    if (currentState.itemInput.trim().isNotEmpty) {
+      _addItem(currentState.itemInput);
+    }
+
+    // Get updated state
     final formState = ref.read(creditFormProvider);
     
     if (!_canSave(formState)) {
@@ -243,7 +252,12 @@ class _AddCreditDialogState extends ConsumerState<AddCreditDialog> {
               // Total Amount
               TextFormField(
                 initialValue: formState.totalAmount,
-                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                    RegExp(r'^\d*\.?\d*$'),
+                  ),
+                ],
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 onChanged: notifier.updateTotalAmount,
                 decoration: InputDecoration(
                   labelText: widget.t('totalAmount'),
@@ -261,7 +275,12 @@ class _AddCreditDialogState extends ConsumerState<AddCreditDialog> {
               // Amount Paid
               TextFormField(
                 initialValue: formState.amountPaid,
-                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                    RegExp(r'^\d*\.?\d*$'),
+                  ),
+                ],
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 onChanged: notifier.updateAmountPaid,
                 decoration: InputDecoration(
                   labelText: widget.t('amountPaid'),
