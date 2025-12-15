@@ -108,7 +108,7 @@ class ProductCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product.name,
+                  product.getLocalizedName(locale),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

@@ -49,7 +49,7 @@ class NotificationsScreen extends ConsumerWidget {
                   context: context,
                   builder: (context) => AlertDialog(
                     title: Text(t('clearAll')),
-                    content: Text('Are you sure you want to clear all notifications?'),
+                    content: Text(t('clearAllConfirm')),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
@@ -101,6 +101,7 @@ class NotificationsScreen extends ConsumerWidget {
                 final notification = notificationState.notifications[index];
                 return _NotificationCard(
                   notification: notification,
+                  locale: locale,
                   onTap: () {
                     // Mark as seen
                     ref.read(notificationProvider.notifier).markAsSeen(notification.id);
@@ -143,10 +144,12 @@ class NotificationsScreen extends ConsumerWidget {
 class _NotificationCard extends StatelessWidget {
   final AppNotification notification;
   final VoidCallback onTap;
+  final String locale;
 
   const _NotificationCard({
     required this.notification,
     required this.onTap,
+    required this.locale,
   });
 
   IconData _getIconForType(String type) {
@@ -166,18 +169,20 @@ class _NotificationCard extends StatelessWidget {
     return AppColors.primary;
   }
 
-  String _formatTime(DateTime timestamp) {
+  String _formatTime(DateTime timestamp, String locale) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
+    
+    String t(String key) => TranslationService.translate(key, locale);
 
     if (difference.inMinutes < 1) {
-      return 'Just now';
+      return t('justNow');
     } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m ago';
+      return '${difference.inMinutes}${t('minutesAgo')}';
     } else if (difference.inDays < 1) {
-      return '${difference.inHours}h ago';
+      return '${difference.inHours}${t('hoursAgo')}';
     } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
+      return '${difference.inDays}${t('daysAgo')}';
     } else {
       return DateFormat('MMM d').format(timestamp);
     }
@@ -256,7 +261,7 @@ class _NotificationCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      _formatTime(notification.timestamp),
+                      _formatTime(notification.timestamp, locale),
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey[500],

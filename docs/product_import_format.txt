@@ -1,0 +1,179 @@
+================================================================================
+                    MALAR STORE - JSON PRODUCT IMPORT FORMAT
+================================================================================
+
+This document explains how to create a JSON file for bulk importing products
+into the Malar Store app.
+
+--------------------------------------------------------------------------------
+                              JSON STRUCTURE
+--------------------------------------------------------------------------------
+
+{
+  "version": "1.0",
+  "products": [
+    {
+      "id": "prod_001",
+      "name": "Basmati Rice",
+      "category": "Grains",
+      "price": 120.00,
+      "quantity": 1,
+      "unit": "kg",
+      "count": 10,
+      "expiryDate": "2025-06-15",
+      "imageUrl": "https://example.com/images/rice.jpg"
+    }
+  ]
+}
+
+--------------------------------------------------------------------------------
+                              FIELD DESCRIPTIONS
+--------------------------------------------------------------------------------
+
+REQUIRED FIELDS:
+----------------
+| Field      | Type    | Description                                         |
+|------------|---------|-----------------------------------------------------|
+| id         | String  | Unique product identifier (e.g., "prod_001")        |
+| name       | String  | Product name (e.g., "Basmati Rice")                 |
+| category   | String  | Category name (e.g., "Grains", "Oil", "Spices")     |
+| price      | Number  | Product price in rupees (e.g., 120.00)              |
+| quantity   | Integer | Weight/volume value (e.g., 250, 500, 1)             |
+| expiryDate | String  | Expiry date in YYYY-MM-DD format (e.g., "2025-06-15")|
+
+OPTIONAL FIELDS:
+----------------
+| Field    | Type    | Default | Description                              |
+|----------|---------|---------|------------------------------------------|
+| unit     | String  | "kg"    | Unit: "kg", "g", "ml", "l", or "pcs"    |
+| count    | Integer | 1       | Number of items/packets                  |
+| imageUrl | String  | null    | URL to product image (will be downloaded)|
+
+--------------------------------------------------------------------------------
+                            IMAGE URL OPTIONS
+--------------------------------------------------------------------------------
+
+You can host your product images on any of these free services:
+
+1. IMGBB (Recommended - Easiest!)
+   - Go to https://imgbb.com
+   - Click "Start uploading" and select your image
+   - After upload, look for the sharing options
+   - Click "Embed codes" tab (or look for link options)
+   - Copy the "Direct link" URL
+   
+   IMPORTANT: The URL must end with .jpg, .png, or .webp
+   
+   CORRECT format:   https://i.ibb.co/XXXXXXX/your-image.jpg
+   WRONG format:     https://ibb.co/XXXXXXX  (this is page link, won't work!)
+
+   To get Direct Link from your uploaded image:
+   - Click on your uploaded image
+   - Look for "Direct links" section on the right
+   - Copy the "Direct link" (NOT "Viewer Link" or "HTML")
+
+2. IMGUR
+   - Go to https://imgur.com
+   - Upload your image
+   - Right-click on image -> Copy image address
+   - Use that URL in imageUrl field
+
+3. GOOGLE DRIVE
+   - Upload image to Google Drive
+   - Right-click -> Share -> Anyone with link
+   - Use direct download link format:
+     https://drive.google.com/uc?export=view&id=YOUR_FILE_ID
+
+NOTE: If imageUrl is not provided or is null, the product will be imported
+without an image. You can add images manually later by editing the product.
+
+--------------------------------------------------------------------------------
+                            SAMPLE JSON FILE
+--------------------------------------------------------------------------------
+
+{
+  "version": "1.0",
+  "products": [
+    {
+      "id": "rice_basmati_1kg",
+      "name": "Basmati Rice",
+      "category": "Grains",
+      "price": 120.00,
+      "quantity": 1,
+      "unit": "kg",
+      "count": 10,
+      "expiryDate": "2025-06-15",
+      "imageUrl": null
+    },
+    {
+      "id": "oil_coconut_500ml",
+      "name": "Coconut Oil",
+      "category": "Oil",
+      "price": 250.00,
+      "quantity": 500,
+      "unit": "ml",
+      "count": 5,
+      "expiryDate": "2025-12-20",
+      "imageUrl": "https://i.imgur.com/example.jpg"
+    },
+    {
+      "id": "sugar_white_1kg",
+      "name": "White Sugar",
+      "category": "Essentials",
+      "price": 45.00,
+      "quantity": 1,
+      "unit": "kg",
+      "count": 20,
+      "expiryDate": "2026-03-01",
+      "imageUrl": "https://drive.google.com/uc?export=view&id=1H7rq3-ACmpIVKHasahlTF5--7PjmeBQ7"
+    },
+     {
+      "id": "toor_dal_500g",
+      "name": "Toor Dal",
+      "category": "Grains",
+      "price": 85.0,
+      "quantity": 500,
+      "unit": "g",
+      "count": 12,
+      "expiryDate": "2026-01-15",
+      "imageUrl": null
+    },
+    {
+      "id": "colgate_toothpaste_100g",
+      "name": "Colgate Toothpaste",
+      "category": "Essentials",
+      "price": 55.0,
+      "quantity": 100,
+      "unit": "g",
+      "count": 8,
+      "expiryDate": "2026-06-20",
+      "imageUrl": "https://drive.google.com/uc?export=view&id=ABC123"
+    }
+  ]
+}
+
+--------------------------------------------------------------------------------
+                              HOW TO IMPORT
+--------------------------------------------------------------------------------
+
+1. Create your JSON file following the format above
+2. Save it as "products.json" (or any .json filename)
+3. Copy the file to your phone (Downloads folder recommended)
+4. Open Malar Store app -> Go to Products tab
+5. Tap the upload icon (next to the + button)
+6. Select your JSON file
+7. Review the products in the preview
+8. Tap "Import" to add all products
+
+--------------------------------------------------------------------------------
+                              TIPS & NOTES
+--------------------------------------------------------------------------------
+
+- The "id" field must be unique for each product
+- Date format must be YYYY-MM-DD (e.g., 2025-12-31)
+- Price can have decimals (e.g., 45.50)
+- If a product with the same ID already exists, it will be skipped
+- Images are downloaded and stored locally (works offline after import)
+- Invalid products will be skipped with an error message
+
+================================================================================

@@ -4,6 +4,7 @@ import '../utils/constants.dart';
 class Product {
   final String id;
   final String name;
+  final String? nameTa; // Tamil name (optional)
   final String category;
   final double price;
   final int quantity; // Weight/volume value (e.g., 250, 500, 1)
@@ -15,6 +16,7 @@ class Product {
   Product({
     required this.id,
     required this.name,
+    this.nameTa,
     required this.category,
     required this.price,
     required this.quantity,
@@ -23,6 +25,14 @@ class Product {
     required this.expiryDate,
     this.imageBase64,
   });
+
+  // Get localized name based on locale
+  String getLocalizedName(String locale) {
+    if (locale == 'ta' && nameTa != null && nameTa!.isNotEmpty) {
+      return nameTa!;
+    }
+    return name;
+  }
 
   // Get expiry status
   ExpiryStatus get expiryStatus => Helpers.getExpiryStatus(expiryDate);
@@ -41,6 +51,7 @@ class Product {
     return {
       'id': id,
       'name': name,
+      'nameTa': nameTa,
       'category': category,
       'price': price,
       'quantity': quantity,
@@ -56,6 +67,7 @@ class Product {
     return Product(
       id: json['id'] as String,
       name: json['name'] as String,
+      nameTa: json['nameTa'] as String?,
       category: json['category'] as String,
       price: (json['price'] as num).toDouble(),
       quantity: json['quantity'] as int,
@@ -70,6 +82,7 @@ class Product {
   Product copyWith({
     String? id,
     String? name,
+    String? nameTa,
     String? category,
     double? price,
     int? quantity,
@@ -81,6 +94,7 @@ class Product {
     return Product(
       id: id ?? this.id,
       name: name ?? this.name,
+      nameTa: nameTa ?? this.nameTa,
       category: category ?? this.category,
       price: price ?? this.price,
       quantity: quantity ?? this.quantity,

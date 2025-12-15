@@ -599,8 +599,8 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
               
               return ShopProductCard(
                   product: product,
-                  displayName: product.name,
-                  onTap: () => _showAddToCartDialog(product, product.name),
+                  displayName: product.getLocalizedName(locale),
+                  onTap: () => _showAddToCartDialog(product, product.getLocalizedName(locale)),
               );
           },
       );

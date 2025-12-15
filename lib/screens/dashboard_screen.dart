@@ -102,7 +102,7 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               ),
 
-            // Stats Grid
+            // Stats Cards - 3 in a row
             Row(
               children: [
                 Expanded(
@@ -117,7 +117,7 @@ class DashboardScreen extends ConsumerWidget {
                     },
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: StatsCard(
                     title: t('freshStock'),
@@ -130,19 +130,20 @@ class DashboardScreen extends ConsumerWidget {
                     },
                   ),
                 ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: StatsCard(
+                    title: t('expiringSoonItems'),
+                    count: expiringSoonCount.toString(),
+                    icon: LucideIcons.clock,
+                    color: AppColors.orange,
+                    onTap: () {
+                      ref.read(productFilterProvider.notifier).setFilter('expiringSoon');
+                      ref.read(navigationProvider.notifier).setIndex(1);
+                    },
+                  ),
+                ),
               ],
-            ),
-            const SizedBox(height: 12),
-            StatsCard(
-              title: t('expiringSoonItems'),
-              count: expiringSoonCount.toString(),
-              icon: LucideIcons.clock,
-              color: AppColors.orange,
-              isFullWidth: true,
-              onTap: () {
-                ref.read(productFilterProvider.notifier).setFilter('expiringSoon');
-                ref.read(navigationProvider.notifier).setIndex(1);
-              },
             ),
 
             const SizedBox(height: 24),

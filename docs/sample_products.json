@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "products": [
+    {
+      "id": "sample_rice_001",
+      "name": "Basmati Rice Premium",
+      "nameTa": "பாஸ்மதி அரிசி",
+      "category": "Grains",
+      "categoryTa": "தானியங்கள்",
+      "price": 150.0,
+      "quantity": 1,
+      "unit": "kg",
+      "count": 10,
+      "expiryDate": "2025-12-31",
+      "imageUrl": "https://drive.google.com/uc?export=view&id=18YP54Y5242oqUYP8lfc34YDMi_9RvDzL"
+    },
+    {
+      "id": "sample_oil_002",
+      "name": "Coconut Oil",
+      "nameTa": "தேங்காய் எண்ணெய்",
+      "category": "Oil",
+      "categoryTa": "எண்ணெய்",
+      "price": 280.0,
+      "quantity": 500,
+      "unit": "ml",
+      "count": 5,
+      "expiryDate": "2026-06-15",
+      "imageUrl": "https://drive.google.com/uc?export=view&id=1H7rq3-ACmpIVKHasahlTF5--7PjmeBQ7"
+    },
+    {
+      "id": "sample_sugar_003",
+      "name": "White Sugar",
+      "nameTa": "வெள்ளை சர்க்கரை",
+      "category": "Essentials",
+      "categoryTa": "அத்தியாவசியம்",
+      "price": 48.0,
+      "quantity": 1,
+      "unit": "kg",
+      "count": 15,
+      "expiryDate": "2026-03-20",
+      "imageUrl": "https://drive.google.com/uc?export=view&id=1Tj2_6uqinfx4VjTxEz91DhxqeCcO_X63"
+    },
+    {
+      "id": "sample_snacks_004",
+      "name": "Cheetos",
+      "nameTa": "சீட்டோஸ்",
+      "category": "Snacks",
+      "categoryTa": "சிற்றுண்டிகள்",
+      "price": 5,
+      "quantity": 1,
+      "unit": "pcs",
+      "count": 10,
+      "expiryDate": "2026-02-04",
+      "imageUrl": "https://drive.google.com/uc?export=view&id=1tuS5ODvCNcnYpTf2f9voLu5EYfBepeeC"
+    }
+  ]
+}

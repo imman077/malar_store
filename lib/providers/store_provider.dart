@@ -92,6 +92,24 @@ class StoreNotifier extends StateNotifier<StoreState> {
     }
   }
 
+  // Batch import products (without individual notifications)
+  Future<int> addProducts(List<Product> products) async {
+    if (products.isEmpty) return 0;
+    
+    final updatedProducts = [...state.products, ...products];
+    state = state.copyWith(products: updatedProducts);
+    await StorageService.saveProducts(updatedProducts);
+    
+    // Single notification for batch import
+    await NotificationService.showNotification(
+      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      title: 'Products Imported',
+      body: '${products.length} products imported successfully.',
+    );
+    
+    return products.length;
+  }
+
   Future<void> updateProduct(Product product) async {
     final updatedProducts = state.products.map((p) {
       return p.id == product.id ? product : p;

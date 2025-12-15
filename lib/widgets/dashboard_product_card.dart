@@ -89,7 +89,7 @@ class DashboardProductCard extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    product.name,
+                    product.getLocalizedName(locale),
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
