@@ -12,8 +12,7 @@ import '../utils/constants.dart';
 import '../utils/helpers.dart';
 import '../utils/app_router.dart';
 import '../widgets/stats_card.dart';
-import '../widgets/product_card.dart';
-import '../widgets/product_card.dart';
+import '../widgets/dashboard_product_card.dart';
 import 'product_form_screen.dart';
 import '../providers/app_provider.dart';
 
@@ -158,11 +157,10 @@ class DashboardScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 12),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildQuickActionButton(
+            Row(
+              children: [
+                Expanded(
+                  child: _buildQuickActionButton(
                     context,
                     icon: LucideIcons.plus,
                     label: t('addProduct'),
@@ -171,8 +169,10 @@ class DashboardScreen extends ConsumerWidget {
                       AppRouter.navigateToAddProduct(context);
                     },
                   ),
-                  const SizedBox(width: 12),
-                   _buildQuickActionButton(
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildQuickActionButton(
                     context,
                     icon: LucideIcons.users,
                     label: t('credits'),
@@ -181,9 +181,14 @@ class DashboardScreen extends ConsumerWidget {
                       ref.read(navigationProvider.notifier).setIndex(3);
                     },
                   ),
-                  
-                  const SizedBox(width: 12),
-                  _buildQuickActionButton(
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildQuickActionButton(
                     context,
                     icon: LucideIcons.calculator,
                     label: t('weightLiquidCalculator'),
@@ -192,17 +197,10 @@ class DashboardScreen extends ConsumerWidget {
                       AppRouter.navigateToWeightLiquidCalculator(context);
                     },
                   ),
-                  const SizedBox(width: 12),
-                  // _buildQuickActionButton(
-                  //   context,
-                  //   icon: LucideIcons.scan,
-                  //   label: t('scan'),
-                  //   color: AppColors.orange,
-                  //   onTap: () {
-                  //     // Scan functionality
-                  //   },
-                  // ),
-                  _buildQuickActionButton(
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildQuickActionButton(
                     context,
                     icon: LucideIcons.percent,
                     label: t('discountCalculator'),
@@ -211,10 +209,8 @@ class DashboardScreen extends ConsumerWidget {
                       AppRouter.navigateToDiscountCalculator(context);
                     },
                   ),
-                  const SizedBox(width: 12),
-                 
-                ],
-              ),
+                ),
+              ],
             ),
 
             const SizedBox(height: 24),
@@ -269,14 +265,12 @@ class DashboardScreen extends ConsumerWidget {
                 ),
               )
             else
-              ...recentProducts.map((product) => ProductCard(
+              ...recentProducts.map((product) => DashboardProductCard(
                     product: product,
                     locale: locale,
-                    onEdit: () {
+                    onTap: () {
+                      // View product details
                       AppRouter.navigateToEditProduct(context, product);
-                    },
-                    onDelete: () {
-                      _showDeleteDialog(context, ref, product.id, t);
                     },
                   )),
           ],
@@ -380,30 +374,28 @@ class DashboardScreen extends ConsumerWidget {
   }) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.button),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(AppRadius.button),
         ),
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: AppColors.white, size: 20),
-            const SizedBox(width: 8),
+            Icon(icon, color: AppColors.white, size: 24),
+            const SizedBox(height: 6),
             Text(
               label,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 color: AppColors.white,
                 fontWeight: FontWeight.w600,
-                fontSize: 14,
+                fontSize: 11,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

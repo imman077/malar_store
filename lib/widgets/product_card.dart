@@ -10,14 +10,14 @@ import '../utils/helpers.dart';
 class ProductCard extends ConsumerWidget {
   final Product product;
   final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final VoidCallback? onDelete; // Made optional
   final String locale;
 
   const ProductCard({
     super.key,
     required this.product,
     required this.onEdit,
-    required this.onDelete,
+    this.onDelete, // Optional parameter
     required this.locale,
   });
 
@@ -171,14 +171,16 @@ class ProductCard extends ConsumerWidget {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              const SizedBox(height: 4),
-              IconButton(
-                icon: const Icon(LucideIcons.trash2, size: 20),
-                onPressed: onDelete,
-                color: AppColors.red,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
+              if (onDelete != null) ...[
+                const SizedBox(height: 4),
+                IconButton(
+                  icon: const Icon(LucideIcons.trash2, size: 20),
+                  onPressed: onDelete,
+                  color: AppColors.red,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
             ],
           ),
         ],

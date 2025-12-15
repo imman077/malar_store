@@ -72,21 +72,23 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
                     },
                     decoration: InputDecoration(
                       hintText: t('search'),
-                      prefixIcon: const Icon(LucideIcons.search),
+                      prefixIcon: const Icon(LucideIcons.search, size: 20),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppRadius.input),
                         borderSide: BorderSide(color: AppColors.lightGray),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppRadius.input),
                         borderSide: BorderSide(color: AppColors.lightGray),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppRadius.input),
                         borderSide: const BorderSide(color: AppColors.primary, width: 2),
                       ),
                       filled: true,
                       fillColor: AppColors.background,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      isDense: true,
                     ),
                   ),
                 ),
@@ -97,7 +99,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
                   height: 48,
                   decoration: BoxDecoration(
                     color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.button),
                   ),
                   child: IconButton(
                     onPressed: () => AppRouter.navigateToAddProduct(context),
